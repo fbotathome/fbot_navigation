@@ -14,29 +14,6 @@ from launch_ros.parameter_descriptions import ParameterValue
 
 
 def generate_launch_description() -> None:
-    declared_arguments = []
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "use_rviz",
-            default_value="false",
-            description="Start RViz2 automatically with this launch file.",
-        )
-    )
-
-    use_rviz = LaunchConfiguration("use_rviz")
-
-    rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare("fbot_navigation"), "rviz", "navigation.rviz"]
-    )
-
-    rviz_node = Node(
-       package="rviz2",
-       executable="rviz2",
-       name="rviz2",
-       output="log",
-       arguments=["-d", rviz_config_file],
-       condition=IfCondition(use_rviz),
-    )
 
     robot_controllers = PathJoinSubstitution(
         [
@@ -88,7 +65,6 @@ def generate_launch_description() -> None:
         joint_state_publisher_node,
         joint_state_broadcaster_spawner,
         delay_robot_controller_spawner_after_joint_state_broadcaster_spawner,
-        rviz_node,
     ]
 
-    return LaunchDescription(declared_arguments + nodes)
+    return LaunchDescription(nodes)
