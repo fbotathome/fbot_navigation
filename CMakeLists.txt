@@ -32,8 +32,8 @@ install( DIRECTORY param/
          DESTINATION share/${PROJECT_NAME}/param)
 install( DIRECTORY rviz/
          DESTINATION share/${PROJECT_NAME}/rviz) 
-# install( DIRECTORY maps/
-#          DESTINATION share/${PROJECT_NAME}/maps) 
+install( DIRECTORY maps/
+         DESTINATION share/${PROJECT_NAME}/maps) 
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
