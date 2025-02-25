@@ -22,26 +22,33 @@ def generate_launch_description():
         }.items()
     )
     
-    urg_node_ground = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(get_package_share_directory("sensors_description"), 'launch', 'urg_node_ground.launch.py')
+    # urg_node_ground = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(
+    #         os.path.join(get_package_share_directory("sensors_description"), 'launch', 'urg_node_ground.launch.py')
         
-        ),
-        launch_arguments={
-            'sensor_interface': 'ground',
-            'use_rviz': 'false',
-        }.items()
-    )
+    #     ),
+    #     launch_arguments={
+    #         'sensor_interface': 'ground',
+    #         'use_rviz': 'false',
+    #     }.items()
+    # )
 
-    urg_node_back = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(get_package_share_directory("sensors_description"), 'launch', 'urg_node_back.launch.py')
+    # urg_node_back = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(
+    #         os.path.join(get_package_share_directory("sensors_description"), 'launch', 'urg_node_back.launch.py')
         
-        ),
-        launch_arguments={
-            'sensor_interface': 'back',
-            'use_rviz': 'false',
-        }.items()
+    #     ),
+    #     launch_arguments={
+    #         'sensor_interface': 'back',
+    #         'use_rviz': 'false',
+    #     }.items()
+    # )
+
+    sick_lms_1xx = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(get_package_share_directory("sensors_description"), 'launch', 'sick_lms_1xx.launch.py')
+        
+        )
     )
 
     imu = IncludeLaunchDescription(
@@ -74,8 +81,9 @@ def generate_launch_description():
     return LaunchDescription([
 
         robot_launch,
-        urg_node_ground,
-        urg_node_back,
+        sick_lms_1xx,
+        # urg_node_ground,
+        # urg_node_back,
         # imu,
         # robot_localization,
         # controllers_launch,
