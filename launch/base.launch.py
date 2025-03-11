@@ -17,8 +17,7 @@ def generate_launch_description():
         
         ),
         launch_arguments={
-            'use_rviz': 'false',
-            # 'arm_z_position':'0.23'
+            'arm_z_position':'0.23'
         }.items()
     )
     

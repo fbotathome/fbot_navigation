@@ -17,10 +17,9 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory("fbot_navigation"), 'launch', 'base.launch.py')
         ),
-        # launch_arguments={
-            # 'use_rviz': 'false',
-        #     'arm_z_position': '0.23'
-        # }.items()
+        launch_arguments={
+            'arm_z_position': '0.23'
+        }.items()
     )
 
     return LaunchDescription([
