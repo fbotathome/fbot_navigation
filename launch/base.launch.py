@@ -21,6 +21,13 @@ def generate_launch_description():
             # 'arm_z_position':'0.23'
         }.items()
     )
+
+    sick_lms_1xx = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(get_package_share_directory("sick_scan_xd"), 'launch', 'sick_lms_1xx.launch.py')
+        
+        )
+    )
     
     urg_node_ground = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -75,7 +82,8 @@ def generate_launch_description():
 
         robot_launch,
         urg_node_ground,
-        urg_node_back,
+        sick_lms_1xx,
+        # urg_node_back,
         # imu,
         # robot_localization,
         # controllers_launch,
