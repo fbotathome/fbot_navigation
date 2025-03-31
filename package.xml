@@ -9,10 +9,10 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <build_depend>slam_toolbox</build_depend>
   <build_depend>nav2_bringup</build_depend>
   <build_depend>navigation2</build_depend>
   <build_depend>velodyne_description</build_depend>
-
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
