@@ -23,7 +23,7 @@ def generate_launch_description():
 
     sick_lms_1xx = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(get_package_share_directory("sick_scan_xd"), 'launch', 'sick_lms_1xx.launch.py')
+            os.path.join(get_package_share_directory("sensors_description"), 'launch', 'sick_lms_1xx.launch.py')
         
         )
     )
@@ -49,13 +49,6 @@ def generate_launch_description():
     #         'use_rviz': 'false',
     #     }.items()
     # )
-
-    sick_lms_1xx = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(get_package_share_directory("sensors_description"), 'launch', 'sick_lms_1xx.launch.py')
-        
-        )
-    )
 
     imu = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
