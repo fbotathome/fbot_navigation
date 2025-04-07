@@ -8,6 +8,8 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
+import time
+
 
 def generate_launch_description():
     config_dir = os.path.join(get_package_share_directory('fbot_navigation'), 'param')
@@ -17,17 +19,16 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory("fbot_navigation"), 'launch', 'base.launch.py')
         ),
-        # launch_arguments={
-            # 'use_rviz': 'false',
-        #     'arm_z_position': '0.23'
-        # }.items()
+        launch_arguments={
+            'arm_z_position': '0.23'
+        }.items()
     )
-
+    
     return LaunchDescription([
 
         Node(
             package='slam_toolbox',
-            executable='sync_slam_toolbox_node',
+            executable='async_slam_toolbox_node',
             name='slam_toolbox',
             output='screen',
             parameters=[{

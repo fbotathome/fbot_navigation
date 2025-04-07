@@ -17,21 +17,27 @@ def generate_launch_description():
         
         ),
         launch_arguments={
-            'use_rviz': 'false',
-            # 'arm_z_position':'0.23'
+            'arm_z_position':'0.23'
         }.items()
     )
-    
-    # urg_node_ground = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(
-    #         os.path.join(get_package_share_directory("sensors_description"), 'launch', 'urg_node_ground.launch.py')
+
+    sick_lms_1xx = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(get_package_share_directory("sensors_description"), 'launch', 'sick_lms_1xx.launch.py')
         
-    #     ),
-    #     launch_arguments={
-    #         'sensor_interface': 'ground',
-    #         'use_rviz': 'false',
-    #     }.items()
-    # )
+        )
+    )
+    
+    urg_node_ground = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(get_package_share_directory("sensors_description"), 'launch', 'urg_node_ground.launch.py')
+        
+        ),
+        launch_arguments={
+            'sensor_interface': 'ground',
+            'use_rviz': 'false',
+        }.items()
+    )
 
     # urg_node_back = IncludeLaunchDescription(
     #     PythonLaunchDescriptionSource(
@@ -43,13 +49,6 @@ def generate_launch_description():
     #         'use_rviz': 'false',
     #     }.items()
     # )
-
-    sick_lms_1xx = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(get_package_share_directory("sensors_description"), 'launch', 'sick_lms_1xx.launch.py')
-        
-        )
-    )
 
     imu = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -82,7 +81,7 @@ def generate_launch_description():
 
         robot_launch,
         sick_lms_1xx,
-        # urg_node_ground,
+        urg_node_ground,
         # urg_node_back,
         # imu,
         # robot_localization,
