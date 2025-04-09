@@ -83,8 +83,8 @@ def generate_launch_description():
         sick_lms_1xx,
         urg_node_ground,
         urg_node_back,
-        # imu,
-        # robot_localization,
+        imu,
+        robot_localization,
         # controllers_launch,
             
     ])
