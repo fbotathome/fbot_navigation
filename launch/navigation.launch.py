@@ -2,8 +2,8 @@ import os
 
 from launch_ros.actions import Node
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
-from launch.substitutions import PathJoinSubstitution
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.substitutions import PathJoinSubstitution,LaunchConfiguration
 from launch_ros.substitutions import FindPackageShare
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
@@ -15,10 +15,25 @@ def generate_launch_description():
     rviz_config_dir = os.path.join(get_package_share_directory('fbot_navigation'), 'rviz/navigation.rviz')
     param_file = os.path.join(config_dir, 'nav2_params.yaml')
 
+    declared_arguments = []
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            'use_description',
+            default_value='true',
+            description='Parameter to use the robot description, if you will use the fbot_navigation standalone' \
+            'launch file set it to true. Otherwise, set it to false to use fbot_bringup' \
+        )
+    )
+
+    use_description = LaunchConfiguration("use_description")
+
     robot_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory('fbot_navigation'), 'launch', 'base.launch.py')
         ),
+        launch_arguments={
+            'use_description': use_description
+        }.items()
     )
 
     map_file = PathJoinSubstitution(
@@ -36,8 +51,10 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+
         robot_launch,
         nav2_bringup_launch,
+        declared_arguments,
        
         Node(
             package='rviz2',
