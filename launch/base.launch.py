@@ -80,8 +80,8 @@ def generate_launch_description():
 
     return LaunchDescription([
         *declared_arguments,
+        sick_lms_1xx,
         robot_launch,
-        # sick_lms_1xx,
         urg_node_ground,
         urg_node_back,
         # imu,
