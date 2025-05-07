@@ -273,7 +273,7 @@ filter_mask_server:
     use_sim_time: true
     frame_id: "map"
     topic_name: "/keepout_filter_mask"
-    yaml_filename: "my_map_filter.yaml"
+    yaml_filename: "/home/stihl/fbot_ws/src/fbot_navigation/maps/my_map_filter.yaml"
 
 
 map_server:
