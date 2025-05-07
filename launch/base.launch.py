@@ -9,7 +9,6 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 from ament_index_python.packages import get_package_share_directory
 
-
 def generate_launch_description():
 
     declared_arguments = []
@@ -80,13 +79,12 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-
+        *declared_arguments,
         robot_launch,
-        sick_lms_1xx,
+        # sick_lms_1xx,
         urg_node_ground,
         urg_node_back,
-        imu,
+        # imu,
         robot_localization,
-        # controllers_launch,
             
     ])

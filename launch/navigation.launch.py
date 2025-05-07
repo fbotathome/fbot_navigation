@@ -20,8 +20,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'use_description',
             default_value='true',
-            description='Parameter to use the robot description, if you will use the fbot_navigation standalone' \
-            'launch file set it to true. Otherwise, set it to false to use fbot_bringup' \
+            description='Parameter to use the robot description or not'
         )
     )
 
@@ -52,9 +51,9 @@ def generate_launch_description():
 
     return LaunchDescription([
 
+        *declared_arguments,
         robot_launch,
         nav2_bringup_launch,
-        declared_arguments,
        
         Node(
             package='rviz2',
