@@ -1,24 +1,36 @@
 import os
 
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+from launch.conditions import IfCondition
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
+from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
 
-    robot_launch = IncludeLaunchDescription(
+    declared_arguments = []
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            'use_description',
+            default_value='true',
+            description='Parameter to use the robot description, if you will use the fbot_navigation standalone' \
+            'launch file set it to true. Otherwise, set it to false to use fbot_bringup' \
+        )
+    )
+
+    description = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory("boris_description"), 'launch', 'boris_description.launch.py')
         
         ),
         launch_arguments={
             'arm_z_position':'0.23'
-        }.items()
+        }.items(),
+        condition=IfCondition(LaunchConfiguration('use_description')
+        )
     )
 
     sick_lms_1xx = IncludeLaunchDescription(
@@ -66,25 +78,13 @@ def generate_launch_description():
         )
     )
 
-    # controllers_launch = IncludeLaunchDescription(
-    #     PythonLaunchDescriptionSource(
-    #         os.path.join(get_package_share_directory("fbot_navigation"), 'launch', 'start_controllers.launch.py')
-        
-    #     ),
-    #     launch_arguments={
-    #         'use_rviz': 'false',
-    #     }.items()
-    # )
-
-
     return LaunchDescription([
-
-        robot_launch,
+        *declared_arguments,
         sick_lms_1xx,
+        description,
         urg_node_ground,
         urg_node_back,
-        imu,
+        # imu,
         robot_localization,
-        # controllers_launch,
             
     ])
