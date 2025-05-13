@@ -21,7 +21,7 @@ def generate_launch_description():
         )
     )
 
-    robot_launch = IncludeLaunchDescription(
+    description = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory("boris_description"), 'launch', 'boris_description.launch.py')
         
@@ -81,7 +81,7 @@ def generate_launch_description():
     return LaunchDescription([
         *declared_arguments,
         sick_lms_1xx,
-        robot_launch,
+        description,
         urg_node_ground,
         urg_node_back,
         # imu,
