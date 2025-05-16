@@ -2,10 +2,12 @@ import os
 
 from launch_ros.actions import Node
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
-from launch.substitutions import PathJoinSubstitution
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
 from launch_ros.substitutions import FindPackageShare
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.conditions import IfCondition
+
 
 from ament_index_python.packages import get_package_share_directory
 
@@ -35,6 +37,12 @@ def generate_launch_description():
         }.items()
     )
 
+    keepout_zones_arg = DeclareLaunchArgument(
+        'use_keepout_zones',
+        default_value='true',
+        description='Use keepout zones on the costmaps'
+    )
+
     rviz_node = Node(
             package='rviz2',
             executable='rviz2',
@@ -50,15 +58,19 @@ def generate_launch_description():
         output='screen',
         emulate_tty=True,
         parameters=[{'autostart': True},
-                    {'node_names': ['filter_mask_server', 'costmap_filter_info_server']}])
+                    {'node_names': ['filter_mask_server', 'costmap_filter_info_server']}],
+        condition=IfCondition(LaunchConfiguration('use_keepout_zones'))
+    )
 
-    filer_mask_server_node = Node(
+    filter_mask_server_node = Node(
         package='nav2_map_server',
         executable='map_server',
         name='filter_mask_server',
         output='screen',
         emulate_tty=True,
-        parameters=[param_file])
+        parameters=[param_file],
+        condition=IfCondition(LaunchConfiguration('use_keepout_zones'))
+    )
 
     costmap_filter_info_server_node = Node(
         package='nav2_map_server',
@@ -66,13 +78,16 @@ def generate_launch_description():
         name='costmap_filter_info_server',
         output='screen',
         emulate_tty=True,
-        parameters=[param_file])
+        parameters=[param_file],
+        condition=IfCondition(LaunchConfiguration('use_keepout_zones'))
+    )
 
     return LaunchDescription([
+        keepout_zones_arg,
         robot_launch,
         nav2_bringup_launch,
         lifecycle_node,
-        filer_mask_server_node,
+        filter_mask_server_node,
         costmap_filter_info_server_node,
         rviz_node
         
