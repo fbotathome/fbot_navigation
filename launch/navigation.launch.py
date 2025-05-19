@@ -17,6 +17,12 @@ def generate_launch_description():
     rviz_config_dir = os.path.join(get_package_share_directory('fbot_navigation'), 'rviz/navigation.rviz')
     param_file = os.path.join(config_dir, 'nav2_params.yaml')
 
+    param_file_arg = DeclareLaunchArgument(
+        'config',
+        default_value=param_file,
+        description='Path to the parameter file'
+    )
+
     robot_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory('fbot_navigation'), 'launch', 'base.launch.py')
@@ -33,9 +39,10 @@ def generate_launch_description():
             'use_sim_time': 'false',
             'autostart': 'true',
             'map': map_file,
-            'params_file': param_file
+            'params_file': param_file_arg
         }.items()
     )
+    
 
     keepout_zones_arg = DeclareLaunchArgument(
         'use_keepout_zones',
@@ -68,7 +75,7 @@ def generate_launch_description():
         name='filter_mask_server',
         output='screen',
         emulate_tty=True,
-        parameters=[param_file],
+        parameters=[param_file_arg],
         condition=IfCondition(LaunchConfiguration('use_keepout_zones'))
     )
 
@@ -78,7 +85,7 @@ def generate_launch_description():
         name='costmap_filter_info_server',
         output='screen',
         emulate_tty=True,
-        parameters=[param_file],
+        parameters=[param_file_arg],
         condition=IfCondition(LaunchConfiguration('use_keepout_zones'))
     )
 
