@@ -277,10 +277,10 @@ local_costmap:
 #    yaml_filename: "/home/stihl/fbot_ws/install/fbot_navigation/share/fbot_navigation/maps/my_map_filter.yaml"
 
 
-#map_server:
-#  ros__parameters:
-#    use_sim_time: false
-#    yaml_filename: "my_map.yaml"
+map_server:
+ ros__parameters:
+   use_sim_time: false
+   yaml_filename: "my_map.yaml"
 
 bt_navigator:
   ros__parameters:

@@ -42,11 +42,10 @@ def generate_launch_description():
             'params_file': param_file
         }.items()
     )
-    
 
     keepout_zones_arg = DeclareLaunchArgument(
         'use_keepout_zones',
-        default_value='true',
+        default_value='false',
         description='Use keepout zones on the costmaps'
     )
 
