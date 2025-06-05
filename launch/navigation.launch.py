@@ -6,7 +6,7 @@ from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
 from launch_ros.substitutions import FindPackageShare
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, UnlessCondition
 
 
 from ament_index_python.packages import get_package_share_directory
@@ -15,8 +15,8 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     config_dir = os.path.join(get_package_share_directory('fbot_navigation'), 'param')
     rviz_config_dir = os.path.join(get_package_share_directory('fbot_navigation'), 'rviz/navigation.rviz')
+    param_file_keepout = os.path.join(config_dir, 'nav2_params_keepout.yaml')
     param_file = os.path.join(config_dir, 'nav2_params.yaml')
-
     # param_file_arg = DeclareLaunchArgument(
     #     'config',
     #     default_value=param_file,
@@ -33,6 +33,12 @@ def generate_launch_description():
         [FindPackageShare("fbot_navigation"), "maps", "my_map.yaml"]
     )
 
+    keepout_zones_arg = DeclareLaunchArgument(
+        'use_keepout_zones',
+        default_value='true',
+        description='Use keepout zones on the costmaps'
+    )
+
     nav2_bringup_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('nav2_bringup'), 'launch', 'bringup_launch.py')),
         launch_arguments={
@@ -43,11 +49,28 @@ def generate_launch_description():
         }.items()
     )
 
-    keepout_zones_arg = DeclareLaunchArgument(
-        'use_keepout_zones',
-        default_value='false',
-        description='Use keepout zones on the costmaps'
+    nav2_bringup_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('nav2_bringup'), 'launch', 'bringup_launch.py')),
+        launch_arguments={
+            'use_sim_time': 'false',
+            'autostart': 'true',
+            'map': map_file,
+            'params_file': param_file
+        }.items(),        
+        condition =UnlessCondition(LaunchConfiguration('use_keepout_zones'))
     )
+
+    nav2_bringup_launch_keepout = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('nav2_bringup'), 'launch', 'bringup_launch.py')),
+        launch_arguments={
+            'use_sim_time': 'false',
+            'autostart': 'true',
+            'map': map_file,
+            'params_file': param_file_keepout
+        }.items(),        
+        condition =IfCondition(LaunchConfiguration('use_keepout_zones'))
+    )
+
 
     rviz_node = Node(
             package='rviz2',
@@ -74,7 +97,7 @@ def generate_launch_description():
         name='filter_mask_server',
         output='screen',
         emulate_tty=True,
-        parameters=[param_file],
+        parameters=[param_file_keepout],
         condition=IfCondition(LaunchConfiguration('use_keepout_zones'))
     )
 
@@ -84,7 +107,7 @@ def generate_launch_description():
         name='costmap_filter_info_server',
         output='screen',
         emulate_tty=True,
-        parameters=[param_file],
+        parameters=[param_file_keepout],
         condition=IfCondition(LaunchConfiguration('use_keepout_zones'))
     )
 
@@ -92,6 +115,7 @@ def generate_launch_description():
         keepout_zones_arg,
         robot_launch,
         nav2_bringup_launch,
+        nav2_bringup_launch_keepout,
         lifecycle_node,
         filter_mask_server_node,
         costmap_filter_info_server_node,
