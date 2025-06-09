@@ -6,6 +6,7 @@ from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.substitutions import PathJoinSubstitution,LaunchConfiguration
 from launch_ros.substitutions import FindPackageShare
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.conditions import IfCondition
 
 from ament_index_python.packages import get_package_share_directory
 
@@ -21,6 +22,13 @@ def generate_launch_description():
             'use_description',
             default_value='true',
             description='Parameter to use the robot description or not'
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            'use_rviz',
+            default_value='true',
+            description='Run rviz2'
         )
     )
 
@@ -59,6 +67,7 @@ def generate_launch_description():
             package='rviz2',
             executable='rviz2',
             name='rviz2_node',
+            condition=IfCondition(LaunchConfiguration('use_rviz')),
             arguments=['-d', rviz_config_dir],
             output='screen'),
     ])
