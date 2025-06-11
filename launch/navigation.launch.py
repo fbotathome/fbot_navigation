@@ -17,25 +17,21 @@ def generate_launch_description():
     rviz_config_dir = os.path.join(get_package_share_directory('fbot_navigation'), 'rviz/navigation.rviz')
     param_file = os.path.join(config_dir, 'nav2_params.yaml')
 
-    declared_arguments = []
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            'use_description',
-            default_value='true',
-            description='Parameter to use the robot description or not'
-        )
+    #declared_arguments = []
+    
+    use_description_arg = DeclareLaunchArgument(
+        'use_description',
+        default_value='true',
+        description='Parameter to use the robot description or not'
     )
 
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            'use_rviz',
-            default_value='true',
-            description='Run rviz2'
-        )
-    )   
-
+    use_rviz_arg = DeclareLaunchArgument(
+        'use_rviz',
+        default_value='true',
+        description='Run rviz2'
+    )
+    
     use_description = LaunchConfiguration("use_description")
-
 
     robot_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -71,9 +67,10 @@ def generate_launch_description():
 
 
     return LaunchDescription([
-        *declared_arguments,
+        use_description_arg,
+        use_rviz_arg,
+        rviz_node,
         robot_launch,
         nav2_bringup_launch,
-        rviz_node
         
     ])
