@@ -26,6 +26,14 @@ def generate_launch_description():
         )
     )
 
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            'use_rviz',
+            default_value='true',
+            description='Run rviz2'
+        )
+    )   
+
     use_description = LaunchConfiguration("use_description")
 
 
@@ -57,6 +65,7 @@ def generate_launch_description():
             package='rviz2',
             executable='rviz2',
             name='rviz2_node',
+            condition=IfCondition(LaunchConfiguration('use_rviz')),
             arguments=['-d', rviz_config_dir],
             output='screen')
 
