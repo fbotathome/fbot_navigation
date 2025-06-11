@@ -15,7 +15,7 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     config_dir = os.path.join(get_package_share_directory('fbot_navigation'), 'param')
     rviz_config_dir = os.path.join(get_package_share_directory('fbot_navigation'), 'rviz/navigation.rviz')
-    param_file = os.path.join(config_dir, 'nav2_params.yaml')
+    param_file_keepout = os.path.join(config_dir, 'nav2_params_keepout.yaml')
 
     declared_arguments = []
     declared_arguments.append(
@@ -25,7 +25,6 @@ def generate_launch_description():
             description='Parameter to use the robot description or not'
         )
     )
-
     declared_arguments.append(
         DeclareLaunchArgument(
             'use_rviz',
@@ -35,7 +34,6 @@ def generate_launch_description():
     )   
 
     use_description = LaunchConfiguration("use_description")
-
 
     robot_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -50,14 +48,13 @@ def generate_launch_description():
         [FindPackageShare("fbot_navigation"), "maps", "my_map.yaml"]
     )
 
-
-    nav2_bringup_launch = IncludeLaunchDescription(
+    nav2_bringup_launch_keepout = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('nav2_bringup'), 'launch', 'bringup_launch.py')),
         launch_arguments={
             'use_sim_time': 'false',
             'autostart': 'true',
             'map': map_file,
-            'params_file': param_file
+            'params_file': param_file_keepout
         }.items()
     )
 
@@ -69,11 +66,42 @@ def generate_launch_description():
             arguments=['-d', rviz_config_dir],
             output='screen')
 
+    #KEEPOUT ZONES 3 necessary nodes
+    lifecycle_node = Node(
+        package='nav2_lifecycle_manager',
+        executable='lifecycle_manager',
+        name='lifecycle_manager_costmap_filters',
+        output='screen',
+        emulate_tty=True,
+        parameters=[{'autostart': True},
+                    {'node_names': ['filter_mask_server', 'costmap_filter_info_server']}],
+    )
+
+    filter_mask_server_node = Node(
+        package='nav2_map_server',
+        executable='map_server',
+        name='filter_mask_server',
+        output='screen',
+        emulate_tty=True,
+        parameters=[param_file_keepout]
+    )
+
+    costmap_filter_info_server_node = Node(
+        package='nav2_map_server',
+        executable='costmap_filter_info_server',
+        name='costmap_filter_info_server',
+        output='screen',
+        emulate_tty=True,
+        parameters=[param_file_keepout]
+    )
 
     return LaunchDescription([
         *declared_arguments,
         robot_launch,
-        nav2_bringup_launch,
+        nav2_bringup_launch_keepout,
+        lifecycle_node,
+        filter_mask_server_node,
+        costmap_filter_info_server_node,
         rviz_node
         
     ])
