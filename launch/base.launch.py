@@ -27,7 +27,8 @@ def generate_launch_description():
         
         ),
         launch_arguments={
-            'arm_z_position':'0.23'
+            'arm_z_position':'0.23',
+            'use_rviz': 'false'
         }.items(),
         condition=IfCondition(LaunchConfiguration('use_description')
         )
@@ -35,9 +36,11 @@ def generate_launch_description():
 
     sick_lms_1xx = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(get_package_share_directory("sensors_description"), 'launch', 'sick_lms_1xx.launch.py')
-        
-        )
+            os.path.join(get_package_share_directory("sensors_description"), 'launch', 'sick_lms_1xx.launch.py')    
+        ),
+        launch_arguments={
+            'use_rviz': 'false',
+        }.items()
     )
     
     urg_node_ground = IncludeLaunchDescription(
