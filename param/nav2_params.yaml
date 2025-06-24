@@ -161,8 +161,8 @@ global_costmap:
         group_connectivity_type: 8
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        cost_scaling_factor: 10.0
+        inflation_radius: 2.0
       always_send_full_costmap: True
       #keepout_filter:
       #  plugin: "nav2_costmap_2d::KeepoutFilter"
@@ -187,8 +187,8 @@ local_costmap:
       #filters: ["keepout_filter"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 1.0
-        cost_scaling_factor: 3.0
+        inflation_radius: 2.0
+        cost_scaling_factor: 10.0
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
