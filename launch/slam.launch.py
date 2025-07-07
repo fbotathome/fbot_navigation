@@ -2,8 +2,10 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
+from launch.conditions import IfCondition
 from launch_ros.actions import Node
 
 def generate_launch_description():
@@ -18,12 +20,19 @@ def generate_launch_description():
             'arm_z_position': '0.23'
         }.items()
     )
+
+    launch_rviz = DeclareLaunchArgument(
+        "launch_rviz",
+        default_value="true",
+        description="If should launch RVIZ or not."
+    )
     
     nav_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('nav2_bringup'), 'launch', 'navigation_launch.py'))
     )
     
     return LaunchDescription([
+        launch_rviz,
 
         Node(
             package='slam_toolbox',
@@ -40,7 +49,8 @@ def generate_launch_description():
             executable='rviz2',
             name='rviz2_node',
             arguments=['-d', rviz_config_dir],
-            output='screen'),
+            output='screen',
+            condition=IfCondition(LaunchConfiguration("launch_rviz"))),
 
         nav_launch,
 
