@@ -1,0 +1,37 @@
+digraph G {
+"arm_support_link" -> "wx200/base_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"dorso_link" -> "arm_support_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"base_link" -> "sick_link"[label=" Broadcaster: default_authority\nAverage rate: 11.099\nBuffer length: 0.901\nMost recent transform: 1752085900.123115\nOldest transform: 1752085899.222122\n"];
+"base_footprint" -> "base_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"dorso_link" -> "head_pan_link"[label=" Broadcaster: default_authority\nAverage rate: 11.112\nBuffer length: 0.9\nMost recent transform: 1752085900.170889\nOldest transform: 1752085899.270973\n"];
+"base_link" -> "dorso_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"head_pan_link" -> "head_tilt_link"[label=" Broadcaster: default_authority\nAverage rate: 11.112\nBuffer length: 0.9\nMost recent transform: 1752085900.170889\nOldest transform: 1752085899.270973\n"];
+"base_link" -> "left_wheel"[label=" Broadcaster: default_authority\nAverage rate: 11.112\nBuffer length: 0.9\nMost recent transform: 1752085900.170889\nOldest transform: 1752085899.270973\n"];
+"base_link" -> "right_wheel"[label=" Broadcaster: default_authority\nAverage rate: 11.112\nBuffer length: 0.9\nMost recent transform: 1752085900.170889\nOldest transform: 1752085899.270973\n"];
+"odom" -> "base_footprint"[label=" Broadcaster: default_authority\nAverage rate: 114.327\nBuffer length: 0.07\nMost recent transform: 1752085900.195548\nOldest transform: 1752085900.125573\n"];
+"head_tilt_link" -> "camera_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"head_tilt_link_static" -> "camera_link_static"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"head_pan_link_static" -> "head_tilt_link_static"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"dorso_link" -> "head_pan_link_static"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"base_link" -> "hokuyo_back_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"base_link" -> "hokuyo_ground_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"base_link" -> "imu_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"base_link" -> "sick_mount_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"sick_mount_link" -> "sick_laser"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"wx200/gripper_link" -> "wx200/ee_arm_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"wx200/wrist_link" -> "wx200/gripper_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 1752085900.162154\nOldest transform: 1752085900.162154\n"];
+"wx200/gripper_bar_link" -> "wx200/fingers_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"wx200/ee_arm_link" -> "wx200/gripper_bar_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"wx200/fingers_link" -> "wx200/ee_gripper_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 0.0\nOldest transform: 0.0\n"];
+"wx200/upper_arm_link" -> "wx200/forearm_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 1752085900.162154\nOldest transform: 1752085900.162154\n"];
+"wx200/shoulder_link" -> "wx200/upper_arm_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 1752085900.162154\nOldest transform: 1752085900.162154\n"];
+"wx200/ee_arm_link" -> "wx200/gripper_prop_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 1752085900.162154\nOldest transform: 1752085900.162154\n"];
+"wx200/fingers_link" -> "wx200/left_finger_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 1752085900.162154\nOldest transform: 1752085900.162154\n"];
+"wx200/fingers_link" -> "wx200/right_finger_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 1752085900.162154\nOldest transform: 1752085900.162154\n"];
+"wx200/base_link" -> "wx200/shoulder_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 1752085900.162154\nOldest transform: 1752085900.162154\n"];
+"wx200/forearm_link" -> "wx200/wrist_link"[label=" Broadcaster: default_authority\nAverage rate: 10000.0\nBuffer length: 0.0\nMost recent transform: 1752085900.162154\nOldest transform: 1752085900.162154\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1752085900.2181237"[ shape=plaintext ] ;
+}->"odom";
+}
