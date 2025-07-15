@@ -43,7 +43,7 @@ def generate_launch_description():
     )
 
     map_file = PathJoinSubstitution(
-        [FindPackageShare("fbot_navigation"), "maps", "my_map.yaml"]
+        [FindPackageShare("fbot_navigation"), "maps", "arena_home_OPL_V1.yaml"]
     )
 
 
