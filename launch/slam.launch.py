@@ -37,7 +37,13 @@ def generate_launch_description():
     )
 
     nav_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('nav2_bringup'), 'launch', 'navigation_launch.py'))
+        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('nav2_bringup'), 'launch', 'navigation_launch.py')),
+        launch_arguments={
+            'use_sim_time': 'false',
+            'autostart': 'true',
+            'params_file': param_file,
+            'use_rviz': 'false'
+        }.items()
     )
 
     rviz_node = Node(
