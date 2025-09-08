@@ -45,7 +45,7 @@ fbot_navigation/
 - Ubuntu 22.04
 - Dependencies listed in `package.xml`
 
-### Setup
+### Initial Setup
 
 1. **Clone the repository into your ROS workspace:**
    ```bash
@@ -82,6 +82,9 @@ ros2 launch fbot_navigation navigation.launch.py
 # Launch mapping
 ros2 launch fbot_navigation mapping.launch.py
 
+# Launch slam
+ros2 launch fbot_navigation slam.launch.py
+
 # Launch robot localization
 ros2 launch fbot_navigation robot_localization.launch.py
 
@@ -100,6 +103,29 @@ ros2 run rviz2 rviz2 -d $(ros2 pkg prefix fbot_navigation)/share/fbot_navigation
 
 # Open RViz for mapping
 ros2 run rviz2 rviz2 -d $(ros2 pkg prefix fbot_navigation)/share/fbot_navigation/rviz/mapping.rviz
+```
+
+---
+
+## How to Map an Environment
+
+```bash
+# Launch SLAM
+ros2 launch fbot_navigation mapping.launch.py
+
+# Open RViz for mapping
+ros2 run rviz2 rviz2 -d $(ros2 pkg prefix fbot_navigation)/share/fbot_navigation/rviz/mapping.rviz
+
+# Move the robot around (running teleop of just pushing the robot)
+
+# When the map is ready just save it 
+ros2 run nav2_map_server map_saver_cli -f my_map
+
+# Do not forget to alter the name of the map on the launch file with the name you chose when saving the newly created map.
+
+# Obs.: If the map seems quirky don't worry, sometimes moving it around a little more corrects the drift. If it doesn't help just start over again :)
+
+
 ```
 
 ---
@@ -130,6 +156,7 @@ ros2 run rviz2 rviz2 -d $(ros2 pkg prefix fbot_navigation)/share/fbot_navigation
 ### Param tips and other recommendations
 
 1. When mapping remember to change the launch file to match the name of the generated map
+2. For the robot to appear in the map when running nav an initial pose has to be estimated
 ---
 
 ## Development
@@ -138,5 +165,43 @@ ros2 run rviz2 rviz2 -d $(ros2 pkg prefix fbot_navigation)/share/fbot_navigation
 2. Commit your changes (`git commit -m 'Add amazing feature'`)
 3. Push to the branch (`git push origin feat/amazing-feature`)
 4. Open a Pull Request
+
+---
+
+## Useful Links
+
+### Basic Guides
+
+1. [Basic Navigation](https://docs.nav2.org/getting_started/index.html#navigating)
+2. [Navigation Concepts](https://docs.nav2.org/concepts/index.html#)
+3. [Setting up Odometry](https://docs.nav2.org/setup_guides/odom/setup_odom_gz.html)
+4. [Smoothing Odometry](https://docs.nav2.org/setup_guides/odom/setup_robot_localization.html)
+5. [Mapping and Localization Basics](https://docs.nav2.org/setup_guides/sensors/mapping_localization.html)
+6. [Setting Up Robot Footprint](https://docs.nav2.org/setup_guides/footprint/setup_footprint.html)
+7. [Setting Up Navigation Plugins](https://docs.nav2.org/setup_guides/algorithm/select_algorithm.html)
+8. [Nav2 Configuration Guide](https://docs.nav2.org/configuration/index.html)
+9. [Nav2 Tuning Guide](https://docs.nav2.org/tuning/index.html)
+10. [List of Navigation Plugins](https://docs.nav2.org/plugins/index.html#)
+
+### Nav Tutorials
+
+1. [Tutorial: Navigation with SLAM](https://docs.nav2.org/tutorials/docs/navigation2_with_slam.html)
+2. [Tutorial: Dynamic Point Following](https://docs.nav2.org/tutorials/docs/navigation2_dynamic_point_following.html)
+3. [Tutorial: Navigation with KeepOut Zones](https://docs.nav2.org/tutorials/docs/navigation2_with_keepout_filter.html)
+4. [Tutorial: Navigation with Speed Limits](https://docs.nav2.org/tutorials/docs/navigation2_with_speed_filter.html)
+5. [Tutorial: Navigation with Rotation Shim Controller](https://docs.nav2.org/tutorials/docs/using_shim_controller.html)
+5. [Tutorial: Navigation with Obstacle Noise Filtering](https://docs.nav2.org/tutorials/docs/filtering_of_noise-induced_obstacles.html)
+6. [Tutorial: Adding Vector Objects to Navigation](https://docs.nav2.org/tutorials/docs/navigation2_with_vector_objects.html)
+7. [Tutorial: Creating New Planner](https://docs.nav2.org/plugin_tutorials/docs/writing_new_nav2planner_plugin.html)
+8. [Tutorial: Creating New Controller](https://docs.nav2.org/plugin_tutorials/docs/writing_new_nav2controller_plugin.html)
+9. [Tutorial: Creating New Navigator](https://docs.nav2.org/plugin_tutorials/docs/writing_new_navigator_plugin.html)
+10. [Tutorial: Creating New Costmap2D](https://docs.nav2.org/plugin_tutorials/docs/writing_new_costmap2d_plugin.html)
+
+### SLAM Content
+
+1. [SLAM Toolbox](https://github.com/SteveMacenski/slam_toolbox)
+2. [SLAM Handbook](http://asrl.utias.utoronto.ca/~tdb/slam/)
+3. [Which SLAM should I choose?](https://www.slambotics.org/blog/which-slam-algorithm-should-i-choose)
+
 
 ---
