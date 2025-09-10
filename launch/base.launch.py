@@ -87,7 +87,7 @@ def generate_launch_description():
         description,
         urg_node_ground,
         urg_node_back,
-        # imu,
+        imu,
         robot_localization,
             
     ])
