@@ -157,6 +157,15 @@ ros2 run nav2_map_server map_saver_cli -f my_map
 
 1. When mapping remember to change the launch file to match the name of the generated map
 2. For the robot to appear in the map when running nav an initial pose has to be estimated
+
+
+### Common Errors:
+
+1. Error: Either left or right wheel...index[0]
+   Fix: Check if the base is on and if the base and emergency buttons wires are connected and working.
+2. Error: Robot not appearing after pose estimation
+   Fix: Check the section "What to check before running", however, before restarting try running ```bash sudo udevadm control --reload-rules && sudo service udev restart && sudo udevadm trigger```
+
 ---
 
 ## Development
