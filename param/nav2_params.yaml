@@ -72,7 +72,7 @@ controller_server:
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: -0.1
+      min_vel_x: 0.0
       min_vel_y: 0.0
       max_vel_x: 1.0
       max_vel_y: 0.0
@@ -122,13 +122,15 @@ global_costmap:
       static_map: True
       global_frame: map
       robot_base_frame: base_footprint
+      footprint: "[0.48, 0.0], [0.47, 0.05], [0.45, 0.11], [0.40, 0.19], [0.34, 0.23], [0.29, 0.26], [0.22, 0.26], [0.14, 0.26], [0.0, 0.26], [-0.14, 0.26], [-0.22, 0.26], [-0.34, 0.26], [-0.39, 0.23], [-0.45, 0.19], [-0.49, 0.11], [-0.51, 0.05], [-0.52, 0.0], [-0.51, -0.05], [-0.49, -0.11],  [-0.45, -0.19], [-0.39, -0.23], [-0.29, -0.26], [-0.22, -0.26], [-0.14, -0.26], [0.0, -0.27], [0.14, -0.27], [0.22, -0.27], [0.29, -0.26], [0.34, -0.23], [0.40, -0.19], [0.45, -0.11], [0.47, -0.05]"
       track_unknown_space: true
-      plugins: ["static_layer", "obstacle_layer", "denoise_layer", "inflation_layer"]
+      #plugins: ["static_layer", "obstacle_layer", "denoise_layer", "inflation_layer"]
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
       #filters: ["keepout_filter"]
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
-        observation_sources: scan
+        observation_sources: scan scan2 scan3
         scan:
           topic: /scan
           max_obstacle_height: 2.0
@@ -156,7 +158,7 @@ global_costmap:
         map_subscribe_transient_local: True
       denoise_layer:
         plugin: "nav2_costmap_2d::DenoiseLayer"
-        enabled: true
+        enabled: false
         minimal_group_size: 2
         group_connectivity_type: 8
       inflation_layer:
@@ -182,8 +184,10 @@ local_costmap:
       width: 3
       height: 3
       resolution: 0.05
-      robot_radius: 0.1
-      plugins: ["obstacle_layer", "voxel_layer","denoise_layer", "inflation_layer"]
+      #robot_radius: 0.1
+      footprint: "[0.48, 0.0], [0.47, 0.05], [0.45, 0.11], [0.40, 0.19], [0.34, 0.23], [0.29, 0.26], [0.22, 0.26], [0.14, 0.26], [0.0, 0.26], [-0.14, 0.26], [-0.22, 0.26], [-0.34, 0.26], [-0.39, 0.23], [-0.45, 0.19], [-0.49, 0.11], [-0.51, 0.05], [-0.52, 0.0], [-0.51, -0.05], [-0.49, -0.11],  [-0.45, -0.19], [-0.39, -0.23], [-0.29, -0.26], [-0.22, -0.26], [-0.14, -0.26], [0.0, -0.27], [0.14, -0.27], [0.22, -0.27], [0.29, -0.26], [0.34, -0.23], [0.40, -0.19], [0.45, -0.11], [0.47, -0.05]"
+      #plugins: ["obstacle_layer", "voxel_layer","denoise_layer", "inflation_layer"]
+      plugins: ["obstacle_layer", "inflation_layer"]
       #filters: ["keepout_filter"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -255,7 +259,7 @@ local_costmap:
         map_subscribe_transient_local: True
       denoise_layer:
         plugin: "nav2_costmap_2d::DenoiseLayer"
-        enabled: true
+        enabled: false
         minimal_group_size: 2
         group_connectivity_type: 8
       always_send_full_costmap: True
@@ -292,7 +296,7 @@ local_costmap:
 map_server:
  ros__parameters:
    use_sim_time: false
-   yaml_filename: "my_map.yaml"
+   yaml_filename: "arena_home_OPL_V1.yaml"
 
 bt_navigator:
   ros__parameters:
@@ -342,6 +346,12 @@ bt_navigator:
 bt_navigator_rclcpp_node:
   ros__parameters:
     use_sim_time: False
+
+behavior_server:
+  ros__parameters:
+    max_rotational_vel: 0.3
+    min_rotational_vel: 0.1
+    rotational_acc_lim: 0.3
 
 # amcl:
 #   ros__parameters:
