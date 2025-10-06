@@ -25,21 +25,21 @@ slam_toolbox:
     # ============================================
     
     # Map Update Settings - Balance between accuracy and real-time performance
-    map_update_interval: 0.15  # Optimized for follow-me CPU usage
+    map_update_interval: 0.2  # Increased interval for better performance
     resolution: 0.05
     min_laser_range: 0.3
     max_laser_range: 25.0
     minimum_time_interval: 0.10 
     transform_timeout: 0.2  # Increased tolerance for dynamic motion
     tf_buffer_duration: 30.0  # Longer buffer for better transform history
-    stack_size_to_use: 40000000
+    stack_size_to_use: 20000000  # Reduced stack size for stability
     
     # ============================================
     # ADVANCED PROCESSING PARAMETERS
     # ============================================
     throttle_scans: 1  # Process every scan for smooth tracking
-    transform_publish_period: 0.02  # 50Hz transform updates for real-time responsiveness
-    map_update_interval: 0.15  # Balance between map quality and CPU usage
+    transform_publish_period: 0.05  # Reduced frequency for better performance
+    map_update_interval: 0.2  # Balance between map quality and CPU usage
     
     # ============================================
     # STATE-OF-THE-ART SCAN MATCHING
@@ -47,37 +47,37 @@ slam_toolbox:
     # ============================================
     use_scan_matching: true
     use_scan_barycenter: true  # Better centroid estimation for moving scenarios
-    minimum_travel_distance: 0.02  # Ultra-sensitive for smooth follow-me (SOTA)
+    minimum_travel_distance: 0.025  # Ultra-sensitive for smooth follow-me (SOTA)
     minimum_travel_heading: 0.025  # Ultra-sensitive rotation (SOTA)
-    scan_buffer_size: 35  # Larger buffer for temporal consistency (SOTA)
-    scan_buffer_maximum_scan_distance: 12.0  # Extended range for person tracking (SOTA)
-    link_match_minimum_response_fine: 0.15  # Lower for better sensitivity in dynamic env
-    link_scan_maximum_distance: 3.0  # Wider search for moving obstacles (SOTA)
+    scan_buffer_size: 50  # Increased buffer for better temporal consistency and stability
+    scan_buffer_maximum_scan_distance: 10.0  # Reduced for more local consistency
+    link_match_minimum_response_fine: 0.2  # Increased for more reliable scan matches
+    link_scan_maximum_distance: 2.5  # Reduced for tighter constraints
     
     # Advanced scan matching parameters (SOTA 2024)
     use_response_expansion: true  # Better handling of ambiguous matches
     max_laser_range: 25.0  # Full sensor range utilization
     
-    # Loop Closure - Disabled for follow-me to avoid sudden corrections
-    loop_search_maximum_distance: 5.0
-    do_loop_closing: false  # Keep disabled - critical for smooth follow-me
-    loop_match_minimum_chain_size: 10           
-    loop_match_maximum_variance_coarse: 5.0  
-    loop_match_minimum_response_coarse: 0.35    
-    loop_match_minimum_response_fine: 0.5
+    # Loop Closure - Enabled with conservative parameters for stability
+    loop_search_maximum_distance: 3.0  # Reduced for local loop closures
+    do_loop_closing: false  # Enabled for map stability
+    loop_match_minimum_chain_size: 15  # Increased for more reliable closures
+    loop_match_maximum_variance_coarse: 3.0  # Reduced for stricter matching
+    loop_match_minimum_response_coarse: 0.4  # Increased for better matches
+    loop_match_minimum_response_fine: 0.6  # Increased for higher accuracy
 
     # ============================================
-    # ADVANCED CORRELATION SEARCH SPACE (SOTA)
-    # Multi-resolution search for robust matching
+    # ADVANCED CORRELATION SEARCH SPACE (Optimized for real-time)
+    # Reduced search space for better performance
     # ============================================
-    correlation_search_space_dimension: 0.7  # Wider search for dynamic tracking (SOTA)
-    correlation_search_space_resolution: 0.008  # Finer resolution for precision (SOTA)
-    correlation_search_space_smear_deviation: 0.08  # Tighter distribution (SOTA)
+    correlation_search_space_dimension: 0.5  # Reduced search space for performance
+    correlation_search_space_resolution: 0.01  # Coarser resolution for speed
+    correlation_search_space_smear_deviation: 0.1  # Relaxed distribution
     
     # Multi-resolution correlation parameters
-    coarse_search_angle_offset: 0.349  # ~20 degrees coarse search
-    coarse_angle_resolution: 0.0349  # ~2 degree resolution
-    fine_search_angle_offset: 0.00349  # ~0.2 degree fine search 
+    coarse_search_angle_offset: 0.174  # ~10 degrees coarse search (reduced)
+    coarse_angle_resolution: 0.052  # ~3 degree resolution (coarser)
+    fine_search_angle_offset: 0.0087  # ~0.5 degree fine search (reduced) 
 
     # Loop Search Space (even though loop closure is off)
     loop_search_space_dimension: 3.0
@@ -98,10 +98,14 @@ slam_toolbox:
     # ============================================
     # ROBUSTNESS PARAMETERS (SOTA 2024)
     # ============================================
-    # Outlier rejection for moving people
+    # Outlier rejection for moving people - TUNED FOR PERSON FOLLOWING
     outlier_rejection_enabled: true  # Filter dynamic obstacles from map
-    outlier_angle_threshold: 0.5  # Radians threshold for outlier detection
-    outlier_distance_threshold: 0.3  # Meters threshold for outlier detection
+    outlier_angle_threshold: 0.1  # Reduced from 0.5 - detect smaller angular movements (SOTA)
+    outlier_distance_threshold: 0.05  # Reduced from 0.3 - detect smaller translations (SOTA)
+    
+    # Advanced parameters to require more points for static objects
+    min_pass_through: 4 # Increased from default 2 - require more beams to consider occupied
+    occupancy_threshold: 0.3  # Increased from default 0.1 - require higher ratio of hits to passes
     
     # Adaptive parameters
     enable_interactive_mode: false  # Disable GUI for better performance
