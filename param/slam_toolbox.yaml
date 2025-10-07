@@ -47,8 +47,8 @@ slam_toolbox:
     # ============================================
     use_scan_matching: true
     use_scan_barycenter: true  # Better centroid estimation for moving scenarios
-    minimum_travel_distance: 0.025  # Ultra-sensitive for smooth follow-me (SOTA)
-    minimum_travel_heading: 0.025  # Ultra-sensitive rotation (SOTA)
+    minimum_travel_distance: 0.03  # Slightly increased for better stability
+    minimum_travel_heading: 0.03  # Slightly increased for better stability
     scan_buffer_size: 50  # Increased buffer for better temporal consistency and stability
     scan_buffer_maximum_scan_distance: 10.0  # Reduced for more local consistency
     link_match_minimum_response_fine: 0.2  # Increased for more reliable scan matches
@@ -88,8 +88,8 @@ slam_toolbox:
     # STATE-OF-THE-ART VARIANCE & PENALTY TUNING
     # Optimized for smooth dynamic tracking
     # ============================================
-    distance_variance_penalty: 0.25  # Very low for fluid motion (SOTA)
-    angle_variance_penalty: 0.7  # Reduced for smoother rotation (SOTA)
+    distance_variance_penalty: 0.3  # Slightly increased for better stability
+    angle_variance_penalty: 0.8  # Slightly increased for better stability
     
     # Advanced penalty parameters for person-following
     minimum_angle_penalty: 0.85  # Allow more angular flexibility

@@ -74,7 +74,7 @@ controller_server:
       debug_trajectory_details: True
       min_vel_x: 0.0
       min_vel_y: 0.0
-      max_vel_x: 1.0
+      max_vel_x: 2.0
       max_vel_y: 0.0
       max_vel_theta: 1.0
       min_speed_xy: -0.1
@@ -202,7 +202,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 2.0  # Reduced for smoother cost gradients
-        inflation_radius: 0.2  # Increased for safer obstacle avoidance
+        inflation_radius: 0.1  # Increased for safer obstacle avoidance
       always_send_full_costmap: True
       #keepout_filter:
       #  plugin: "nav2_costmap_2d::KeepoutFilter"
@@ -229,7 +229,7 @@ local_costmap:
       #filters: ["keepout_filter"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.2  # Increased for safer local obstacle avoidance
+        inflation_radius: 0.1  # Increased for safer local obstacle avoidance
         cost_scaling_factor: 2.0  # Reduced for smoother local cost gradients
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
