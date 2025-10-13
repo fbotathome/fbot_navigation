@@ -83,7 +83,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         *declared_arguments,
-        sick_lms_1xx,
+        #sick_lms_1xx,
         description,
         urg_node_ground,
         urg_node_back,
