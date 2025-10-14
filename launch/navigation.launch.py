@@ -43,9 +43,8 @@ def generate_launch_description():
     )
 
     map_file = PathJoinSubstitution(
-        [FindPackageShare("fbot_navigation"), "maps", "lab_map_v2.yaml"]
+        [FindPackageShare("fbot_navigation"), "maps", "CBR_2025_HOME.yaml"]
     )
-
 
     nav2_bringup_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('nav2_bringup'), 'launch', 'bringup_launch.py')),
