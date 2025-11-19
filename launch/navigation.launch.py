@@ -43,7 +43,7 @@ def generate_launch_description():
     )
 
     map_file = PathJoinSubstitution(
-        [FindPackageShare("fbot_navigation"), "maps", "lab_map_v2.yaml"]
+        [FindPackageShare("fbot_navigation"), "maps", "sala_follow.yaml"]
     )
 
 
