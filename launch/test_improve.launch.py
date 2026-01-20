@@ -8,27 +8,27 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
 
-# Padrão
-    navigation = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(get_package_share_directory("fbot_navigation"), 'launch', 'improve_navigation.launch.py')
-        
-        ),
-        launch_arguments={
-            'use_description':'true'
-        }.items()
-    )
-
-# # Padrão com mapa diferente
+# # Padrão
 #     navigation = IncludeLaunchDescription(
 #         PythonLaunchDescriptionSource(
 #             os.path.join(get_package_share_directory("fbot_navigation"), 'launch', 'improve_navigation.launch.py')
         
 #         ),
 #         launch_arguments={
-#             'map_file_arg': 'lab_map_v2.yaml'
+#             'use_description':'true'
 #         }.items()
 #     )
+
+# Padrão com mapa diferente
+    navigation = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(get_package_share_directory("fbot_navigation"), 'launch', 'improve_navigation.launch.py')
+        
+        ),
+        launch_arguments={
+            'map_file': 'lab_map_v2.yaml'
+        }.items()
+    )
 
 # # Padrão com yaml diferente
 #     navigation = IncludeLaunchDescription(

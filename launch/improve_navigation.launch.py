@@ -22,7 +22,7 @@ def generate_launch_description():
     )
 
     map_file_arg = DeclareLaunchArgument(
-        'map',
+        'map_file',
         default_value='CBR_2025_HOME.yaml',
         description='Map file name (only used when use_slam is false)'
     )
@@ -53,7 +53,7 @@ def generate_launch_description():
 
     # Get launch configurations
     use_slam = LaunchConfiguration('use_slam')
-    map_file_name = LaunchConfiguration('map')
+    map_file_name = LaunchConfiguration('map_file')
     nav_params_file = LaunchConfiguration('nav_params_file')
     slam_params_file = LaunchConfiguration('slam_params_file')
     use_description = LaunchConfiguration('use_description')
@@ -136,9 +136,9 @@ def generate_launch_description():
         slam_params_file_arg,
         use_description_arg,
         use_rviz_arg,
+        rviz_node,
         robot_launch,
         nav2_bringup_launch,       # Runs when use_slam=false
         nav2_navigation_launch,    # Runs when use_slam=true
         slam_node,                 # Runs when use_slam=true
-        rviz_node,
     ])
