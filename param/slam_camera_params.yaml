@@ -1,0 +1,459 @@
+amcl:
+  ros__parameters:
+    use_sim_time: False
+    alpha1: 0.2
+    alpha2: 0.2
+    alpha3: 0.8 # default is 0.2
+    alpha4: 0.1 # default is 0.2
+    base_frame_id: "base_footprint"
+    beam_skip_distance: 0.5
+    beam_skip_error_threshold: 0.9
+    beam_skip_threshold: 0.3
+    do_beamskip: false
+    global_frame_id: "map"
+    lambda_short: 0.1
+    laser_likelihood_max_dist: 2.0
+    laser_max_range: 25.0
+    laser_min_range: -1.0
+    laser_model_type: "likelihood_field"
+    max_beams: 60
+    max_particles: 10000
+    min_particles: 1000
+    odom_frame_id: "odom"
+    # pf_err: 0.05
+    # pf_z: 0.99
+    # recovery_alpha_fast: 0.0
+    # recovery_alpha_slow: 0.0
+    resample_interval: 1
+    robot_model_type: "nav2_amcl::DifferentialMotionModel"
+    save_pose_rate: 0.5
+    sigma_hit: 0.2
+    tf_broadcast: true
+    transform_tolerance: 1.0
+    update_min_a: 0.05
+    update_min_d: 0.05
+    z_hit: 0.5
+    z_max: 0.05
+    z_rand: 0.5
+    z_short: 0.05
+    scan_topic: /scan
+
+amcl_map_client:
+  ros__parameters:
+    use_sim_time: False
+
+amcl_rclcpp_node:
+  ros__parameters:
+    use_sim_time: False
+
+controller_server:
+  ros__parameters:
+    use_sim_time: False
+    controller_frequency: 10.0
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.5
+    min_theta_velocity_threshold: 0.001
+    failure_tolerance: 0.3
+    progress_checker_plugin: "progress_checker"
+    goal_checker_plugins: ["general_goal_checker"] 
+    controller_plugins: ["FollowPath"]
+
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.5
+      movement_time_allowance: 10.0
+    
+    general_goal_checker:
+      stateful: True
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_goal_tolerance: 0.5
+      yaw_goal_tolerance: 0.5
+
+    FollowPath:
+      plugin: "dwb_core::DWBLocalPlanner"
+      debug_trajectory_details: True
+      min_vel_x: 0.0
+      min_vel_y: 0.0
+      max_vel_x: 3.0
+      max_vel_y: 0.0
+      max_vel_theta: 1.0
+      min_speed_xy: -0.1
+      max_speed_xy: 1.0
+      min_speed_theta: 0.0
+      acc_lim_x: 1.5
+      acc_lim_y: 0.0
+      acc_lim_theta: 1.5
+      decel_lim_x: -1.5
+      decel_lim_y: 0.0
+      decel_lim_theta: -1.5
+      vx_samples: 20
+      vy_samples: 0
+      vtheta_samples: 40
+      sim_time: 2.0
+      linear_granularity: 0.05
+      angular_granularity: 0.025
+      transform_tolerance: 0.2
+      xy_goal_tolerance: 0.5
+      trans_stopped_velocity: 0.25
+      short_circuit_trajectory_evaluation: True
+      stateful: True
+      critics: ["RotateToGoal", "Oscillation", "ObstacleFootprintCritic", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      BaseObstacle.scale: 0.02
+      ObstacleFootprintCritic.scale: 1.0  # Increased for better obstacle avoidance
+      PathAlign.scale: 10.0  # Reduced for less path adherence
+      PathAlign.forward_point_distance: 0.15  # Increased lookahead
+      GoalAlign.scale: 18.0  # Reduced for smoother approach
+      GoalAlign.forward_point_distance: 0.15  # Increased lookahead
+      PathDist.scale: 28.0  # Reduced for less path distance penalty
+      GoalDist.scale: 20.0  # Reduced for smoother goal approach
+      RotateToGoal.scale: 28.0  # Reduced for less aggressive rotation
+      RotateToGoal.slowing_factor: 4.0  # Reduced for gentler slowing
+      RotateToGoal.lookahead_time: -1.0
+      
+controller_server_rclcpp_node:
+  ros__parameters:
+    use_sim_time: False
+
+planner_server:
+  ros__parameters:
+    use_sim_time: False
+    expected_planner_frequency: 20.0
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_smac_planner/SmacPlanner2D"
+      tolerance: 0.5
+      downsample_costmap: false
+      downsampling_factor: 1
+      allow_unknown: true
+      max_iterations: 1000000
+      max_on_approach_iterations: 1000
+      max_planning_time: 2.0
+      motion_model_for_search: "DUBIN"
+      angle_quantization_bins: 72
+      analytic_expansion_ratio: 3.5
+      analytic_expansion_max_length: 3.0
+      minimum_turning_radius: 0.40
+      reverse_penalty: 3.0  # Reduced for less reverse motion preference
+      change_penalty: 0.05  # Slight penalty for direction changes
+      non_straight_penalty: 2.0  # Reduced for smoother paths
+      cost_penalty: 1.5  # Reduced for better obstacle navigation
+      retrospective_penalty: 0.02  # Increased for more conservative planning
+      lookup_table_size: 20.0
+      cache_obstacle_heuristic: false
+      smooth_path: true
+      smoother:
+        max_iterations: 1000
+        w_smooth: 0.4  # Increased for smoother paths
+        w_data: 0.3  # Increased for better obstacle adherence
+        tolerance: 1.0e-10
+        do_refinement: true
+
+planner_server_rclcpp_node:
+  ros__parameters:
+    use_sim_time: False
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 1.0
+      publish_frequency: 1.0
+      static_map: false
+      global_frame: map
+      robot_base_frame: base_footprint
+      footprint: "[[0.48, 0.0], [0.47, 0.05], [0.45, 0.11], [0.40, 0.19], [0.34, 0.23], [0.29, 0.26], [0.22, 0.26], [0.14, 0.26], [0.0, 0.26], [-0.14, 0.26], [-0.22, 0.26], [-0.34, 0.26], [-0.39, 0.23], [-0.45, 0.19], [-0.49, 0.11], [-0.51, 0.05], [-0.52, 0.0], [-0.51, -0.05], [-0.49, -0.11],  [-0.45, -0.19], [-0.39, -0.23], [-0.29, -0.26], [-0.22, -0.26], [-0.14, -0.26], [0.0, -0.27], [0.14, -0.27], [0.22, -0.27], [0.29, -0.26], [0.34, -0.23], [0.40, -0.19], [0.45, -0.11], [0.47, -0.05]]"
+      track_unknown_space: true
+      #plugins: ["static_layer", "obstacle_layer", "denoise_layer", "inflation_layer"]
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      #filters: ["keepout_filter"]
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan scan2 scan3 head_scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          raytrace_max_range: 4.0  # Increased from 3.5 for better dynamic object clearing
+          raytrace_min_range: 0.0
+          obstacle_max_range: 3.5  # Increased from 3.0 for better dynamic object detection
+          obstacle_min_range: 0.0
+        scan2:
+          topic: /scan2
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+        scan3:
+          topic: /scan3
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+        head_scan:
+          topic: /fbot_vision/camera/depth/color/points
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "PointCloud2"
+          obstacle_max_range: 2.5
+          obstacle_min_range: 0.0
+          inf_is_valid: True
+          observation_persistence: 0.0
+          z_resolution: 0.001
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: True
+      denoise_layer:
+        plugin: "nav2_costmap_2d::DenoiseLayer"
+        enabled: false
+        minimal_group_size: 2
+        group_connectivity_type: 8
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 2.0  # Reduced for smoother cost gradients
+        inflation_radius: 0.1  # Increased for safer obstacle avoidance
+      always_send_full_costmap: True
+      #keepout_filter:
+      #  plugin: "nav2_costmap_2d::KeepoutFilter"
+      #  enabled: True
+      #  filter_info_topic: "/costmap_filter_info"
+
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 5.0
+      publish_frequency: 2.0
+      global_frame: odom
+      robot_base_frame: base_footprint
+      use_sim_time: False
+      rolling_window: true
+      width: 4
+      height: 4
+      resolution: 0.05
+      #robot_radius: 0.1
+      footprint: "[[0.48, 0.0], [0.47, 0.05], [0.45, 0.11], [0.40, 0.19], [0.34, 0.23], [0.29, 0.26], [0.22, 0.26], [0.14, 0.26], [0.0, 0.26], [-0.14, 0.26], [-0.22, 0.26], [-0.34, 0.26], [-0.39, 0.23], [-0.45, 0.19], [-0.49, 0.11], [-0.51, 0.05], [-0.52, 0.0], [-0.51, -0.05], [-0.49, -0.11],  [-0.45, -0.19], [-0.39, -0.23], [-0.29, -0.26], [-0.22, -0.26], [-0.14, -0.26], [0.0, -0.27], [0.14, -0.27], [0.22, -0.27], [0.29, -0.26], [0.34, -0.23], [0.40, -0.19], [0.45, -0.11], [0.47, -0.05]]"
+      plugins: ["obstacle_layer", "inflation_layer"]
+      # plugins: ["obstacle_layer", "inflation_layer"]
+      #filters: ["keepout_filter"]
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        inflation_radius: 0.1  # Increased for safer local obstacle avoidance
+        cost_scaling_factor: 2.0  # Reduced for smoother local cost gradients
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan scan2 scan3 head_scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          raytrace_max_range: 3.5  # Increased from 3.0 for better dynamic object clearing
+          raytrace_min_range: 0.0
+          obstacle_max_range: 3.0  # Increased from 2.5 for better dynamic object detection
+          obstacle_min_range: 0.0
+        scan2:
+          topic: /scan2
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+        scan3:
+          topic: /scan3
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+        head_scan:
+          topic: /fbot_vision/camera/depth/color/points
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "PointCloud2"
+          obstacle_max_range: 2.5
+          obstacle_min_range: 0.0
+          inf_is_valid: True
+          observation_persistence: 0.0
+          # z_resolution: 0.001
+      # voxel_layer:
+      #   plugin: "nav2_costmap_2d::VoxelLayer"
+      #   enabled: True
+      #   publish_voxel_map: True
+      #   origin_z: 0.0
+      #   z_resolution: 0.05
+      #   z_voxels: 16
+      #   max_obstacle_height: 2.0
+      #   mark_threshold: 0
+      #   observation_sources: scan scan2 scan3 head_scan
+      #   scan:
+      #     topic: /scan
+      #     max_obstacle_height: 2.0
+      #     clearing: True
+      #     marking: True
+      #     data_type: "LaserScan"
+      #     raytrace_max_range: 3.5  # Increased from 3.0 for better dynamic object clearing
+      #     raytrace_min_range: 0.0
+      #     obstacle_max_range: 3.0  # Increased from 2.5 for better dynamic object detection
+      #     obstacle_min_range: 0.0
+      #   scan2:
+      #     topic: /scan2
+      #     max_obstacle_height: 2.0
+      #     clearing: True
+      #     marking: True
+      #     data_type: "LaserScan"
+      #     raytrace_max_range: 3.0
+      #     raytrace_min_range: 0.0
+      #     obstacle_max_range: 2.5
+      #     obstacle_min_range: 0.0
+      #   scan3:
+      #     topic: /scan3
+      #     max_obstacle_height: 2.0
+      #     clearing: True
+      #     marking: True
+      #     data_type: "LaserScan"
+      #     raytrace_max_range: 3.0
+      #     raytrace_min_range: 0.0
+      #     obstacle_max_range: 2.5
+      #     obstacle_min_range: 0.0
+      #   head_scan:
+      #     topic: /fbot_vision/camera/depth/color/points
+      #     max_obstacle_height: 2.0
+      #     clearing: True
+      #     marking: True
+      #     data_type: "PointCloud2"
+      #     obstacle_max_range: 2.5
+      #     obstacle_min_range: 0.0
+      #     inf_is_valid: True
+      #     observation_persistence: 0.0
+      #     z_resolution: 0.001
+      static_layer:
+        map_subscribe_transient_local: True
+      denoise_layer:
+        plugin: "nav2_costmap_2d::DenoiseLayer"
+        enabled: false
+        minimal_group_size: 2
+        group_connectivity_type: 8
+      always_send_full_costmap: True
+      #keepout_filter:
+      #  plugin: "nav2_costmap_2d::KeepoutFilter"
+      #  enabled: True
+      #  filter_info_topic: "/costmap_filter_info"
+
+  local_costmap_client:
+    ros__parameters:
+      use_sim_time: False
+
+  local_costmap_rclcpp_node:
+    ros__parameters:
+      use_sim_time: False
+
+#costmap_filter_info_server:
+#  ros__parameters:
+#    use_sim_time: true
+#    type: 0
+#    filter_info_topic: "/costmap_filter_info"
+#    mask_topic: "/keepout_filter_mask"
+#    base: 0.0
+#    multiplier: 1.0
+
+#filter_mask_server:
+#  ros__parameters:
+#    use_sim_time: true
+#    frame_id: "map"
+#    topic_name: "/keepout_filter_mask"
+#    yaml_filename: "/home/stihl/fbot_ws/install/fbot_navigation/share/fbot_navigation/maps/my_map_filter.yaml"
+
+
+map_server:
+ ros__parameters:
+   use_sim_time: false
+   yaml_filename: "arena_home_OPL_V1.yaml"
+
+bt_navigator:
+  ros__parameters:
+    use_sim_time: False
+    global_frame: map
+    robot_base_frame: base_footprint
+    odom_topic: /odometry/filtered
+    default_bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
+    bt_loop_duration: 10
+    default_server_timeout: 20
+    enable_groot_monitoring: True
+    groot_zmq_publisher_port: 1666
+    groot_zmq_server_port: 1667
+    plugin_lib_names:
+    - nav2_compute_path_to_pose_action_bt_node
+    - nav2_compute_path_through_poses_action_bt_node
+    - nav2_follow_path_action_bt_node
+    - nav2_back_up_action_bt_node
+    - nav2_spin_action_bt_node
+    - nav2_wait_action_bt_node
+    - nav2_clear_costmap_service_bt_node
+    - nav2_is_stuck_condition_bt_node
+    - nav2_goal_reached_condition_bt_node
+    - nav2_goal_updated_condition_bt_node
+    - nav2_initial_pose_received_condition_bt_node
+    - nav2_reinitialize_global_localization_service_bt_node
+    - nav2_rate_controller_bt_node
+    - nav2_distance_controller_bt_node
+    - nav2_speed_controller_bt_node
+    - nav2_truncate_path_action_bt_node
+    - nav2_goal_updater_node_bt_node
+    - nav2_recovery_node_bt_node
+    - nav2_pipeline_sequence_bt_node
+    - nav2_round_robin_node_bt_node
+    - nav2_transform_available_condition_bt_node
+    - nav2_time_expired_condition_bt_node
+    - nav2_distance_traveled_condition_bt_node
+    - nav2_single_trigger_bt_node
+    - nav2_is_battery_low_condition_bt_node
+    - nav2_navigate_through_poses_action_bt_node
+    - nav2_navigate_to_pose_action_bt_node
+    - nav2_remove_passed_goals_action_bt_node
+    - nav2_planner_selector_bt_node
+    - nav2_controller_selector_bt_node
+    - nav2_goal_checker_selector_bt_node
+
+bt_navigator_rclcpp_node:
+  ros__parameters:
+    use_sim_time: False
+
+behavior_server:
+  ros__parameters:
+    max_rotational_vel: 0.3
+    min_rotational_vel: 0.1
+    rotational_acc_lim: 0.3
+
+# amcl:
+#   ros__parameters:
+#     use_sim_time: True
+#     min_particles: 500
+#     max_particles: 2000
+#     alpha1: 0.2
+#     alpha2: 0.2
+#     alpha3: 0.2
+#     alpha4: 0.2
+#     alpha5: 0.1
+#     do_resample: True
+#     update_min_d: 0.2
+#     update_min_a: 0.5
+#     resample_interval: 1
+#     laser_max_range: 8.0
+#     odom_frame_id: odom
+#     base_frame_id: base_link
+#     global_frame_id: map
+#     laser_lambda_short: 0.1
+#     laser_model_type: likelihood_field
+#     scan_topic: scan
+#     robot_model_type: differential
+#     tf_broadcast: True
+#     initial_pose_x: 0.0
+#     initial_pose_y: 0.0
+#     initial_pose_a: 0.0
+#     initial_cov_xx: 0.5
+#     initial_cov_yy: 0.5
+#     initial_cov_aa: 0.2
