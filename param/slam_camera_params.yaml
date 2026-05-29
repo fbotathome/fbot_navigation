@@ -192,7 +192,7 @@ global_costmap:
           marking: True
           data_type: "LaserScan"
         head_scan:
-          topic: /fbot_vision/camera/depth/color/points
+          topic: /femtobolt/depth/points
           max_obstacle_height: 2.0
           clearing: True
           marking: True
