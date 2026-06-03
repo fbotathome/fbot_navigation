@@ -3,8 +3,8 @@ amcl:
     use_sim_time: False
     alpha1: 0.2
     alpha2: 0.2
-    alpha3: 0.8 # default is 0.2
-    alpha4: 0.1 # default is 0.2
+    alpha3: 0.2 # default is 0.2
+    alpha4: 0.2 # default is 0.2
     base_frame_id: "base_footprint"
     beam_skip_distance: 0.5
     beam_skip_error_threshold: 0.9
@@ -50,9 +50,9 @@ controller_server:
   ros__parameters:
     use_sim_time: False
     controller_frequency: 10.0
-    min_x_velocity_threshold: 0.001
-    min_y_velocity_threshold: 0.5
-    min_theta_velocity_threshold: 0.001
+    min_x_velocity_threshold: 0.01
+    min_y_velocity_threshold: 1.0
+    min_theta_velocity_threshold: 0.01
     failure_tolerance: 0.3
     progress_checker_plugin: "progress_checker"
     goal_checker_plugins: ["general_goal_checker"] 
@@ -66,7 +66,7 @@ controller_server:
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.25
+      xy_goal_tolerance: 0.3
       yaw_goal_tolerance: 0.3
 
     FollowPath:
@@ -77,9 +77,9 @@ controller_server:
       max_vel_x: 1.0
       max_vel_y: 0.0
       max_vel_theta: 1.0
-      min_speed_xy: -0.1
+      min_speed_xy: -0.2
       max_speed_xy: 1.0
-      min_speed_theta: 0.0
+      min_speed_theta: 0.2
       acc_lim_x: 1.5
       acc_lim_y: 0.0
       acc_lim_theta: 1.5
@@ -93,7 +93,7 @@ controller_server:
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.25
+      xy_goal_tolerance: 0.3
       trans_stopped_velocity: 0.25
       short_circuit_trajectory_evaluation: True
       stateful: True
@@ -101,11 +101,11 @@ controller_server:
       BaseObstacle.scale: 0.02
       PathAlign.scale: 32.0
       PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 24.0
+      GoalAlign.scale: 18.0
       GoalAlign.forward_point_distance: 0.1
       PathDist.scale: 32.0
       GoalDist.scale: 24.0
-      RotateToGoal.scale: 6.0
+      RotateToGoal.scale: 18.0
       RotateToGoal.slowing_factor: 5.0
       RotateToGoal.lookahead_time: -1.0
       
