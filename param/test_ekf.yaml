@@ -1,0 +1,41 @@
+ekf_filter_node:
+  ros__parameters: 
+    frequency: 30.0                 # The frequency (Hz) at which the filter produces a state estimate
+    publish_tf: true                # Whether the filter publishes the odom -> base_footprint transform to the TF tree
+
+    map_frame: map                    # The frame tied to the static map
+    odom_frame: odom                  # The frame tied to the robot's starting point (odometry origin)
+    base_link_frame: base_footprint   # The frame representing the robot's physical center
+    world_frame: odom                 # The frame that the filter uses as its primary continuous reference 
+    odom0: /odom                      # The ROS topic for the wheel encoder odometry
+    imu0: /bno055/imu                 # The ROS topic for the BNO055 IMU
+
+    two_d_mode: true                # Locks the robot to the 2D floor plane, ignoring Z, roll, and pitch
+    publish_acceleration: false     # Whether to publish the acceleration state
+    predict_to_current_time: true   # Extrapolates the state to exactly now()
+    sensor_timeout: 0.1             # Time (s) to wait for a sensor before ignoring it for the current cycle
+    
+    # use_control: true                                         # Feed /cmd_vel into the prediction step for zero-lag tracking
+    # control_timeout: 0.2                                      # Time (s) before the filter assumes /cmd_vel is stale
+    # control_config: [true, false, false, false, false, true]  # Tells it to listen to X_vel and Yaw_vel commands
+
+    imu0_relative: true                           # Forces the IMU to treat its starting orientation as 0 yaw, ignoring compass north
+    imu0_remove_gravitational_acceleration: true  # Subtracts gravity from the acceleration readings to prevent drift on small inclines
+
+    # [X, Y, Z, 
+    #  Roll, Pitch, Yaw, 
+    #  X_vel, Y_vel, Z_vel, 
+    #  Roll_vel, Pitch_vel, Yaw_vel, 
+    #  X_accel, Y_accel, Z_accel]
+
+    odom0_config: [false, false, false,
+                   false, false, false,
+                   true,  false, false,   # Fuses X_vel (Forward speed)
+                   false, false, true,    # Fuses Yaw_vel (Rotational speed)
+                   false, false, false]
+
+    imu0_config: [false, false, false,
+                  false, false, true,     # Fuses Yaw (Orientation around Z-axis)
+                  false, false, false,
+                  false, false, true,     # Fuses Yaw_vel (Rotational speed)
+                  true,  false, false]    # Fuses X_accel (Forward acceleration)
