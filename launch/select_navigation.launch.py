@@ -23,7 +23,7 @@ def generate_launch_description():
 
     map_file_arg = DeclareLaunchArgument(
         'map_file',
-        default_value='CBR_2025_HOME.yaml',
+        default_value='lab_2026_4.yaml',
         description='Map file name (only used when use_slam is false)'
     )
 

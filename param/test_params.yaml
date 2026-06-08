@@ -155,7 +155,7 @@ planner_server:
     planner_plugins: ["GridBased"]
     
     GridBased:
-      plugin: "nav2_smac_planner::SmacPlannerHybrid"
+      plugin: "nav2_smac_planner/SmacPlanner2D"
       tolerance: 0.5                      # Tolerance (m) on the goal point
       allow_unknown: False                # Allow path to travel through unknown space
       max_iterations: 1000000             # Maximum iterations before giving up
