@@ -4,17 +4,17 @@ amcl:
     alpha2: 0.2   # Expected noise in odometry rotation from translational movement
     alpha3: 0.2   # Expected noise in odometry translation from translational movement
     alpha4: 0.2   # Expected noise in odometry translation from rotational movement
-    
+
+    robot_model_type: "nav2_amcl::DifferentialMotionModel"
     base_frame_id: "base_footprint"   # The robot's base frame
     global_frame_id: "map"            # The frame tied to the static map
     odom_frame_id: "odom"             # The frame published by the wheel odometry/EK
     scan_topic: /scan                 # The topic AMCL subscribes to for localization
-    robot_model_type: "nav2_amcl::DifferentialMotionModel"
     set_initial_pose: False           # Determines whether the operator need to manually set the starting pose
     use_sim_time: False
- 
+
     laser_model_type: "likelihood_field"
-    laser_max_range: 15.0     # Maximum range (m) of the laser sensor, calculated in meters
+    laser_max_range: 25.0     # Maximum range (m) of the laser sensor, calculated in meters
     laser_min_range: -1.0     # Minimum range (m) of the laser sensor, -1 means to use the sensor's reported minimum
     laser_likelihood_max_dist: 2.0  # Maximum distance (m) to inflate obstacles in the likelihood field map
     max_beams: 60             # Number of evenly spaced beams used for AMCL updates
@@ -32,7 +32,7 @@ amcl:
     do_beamskip: false              # If true, helps ignore dynamic obstacles in AMCL, but can cause instability if the map is outdated
 
     tf_broadcast: true        # AMCL will publish the map -> odom transform
-    transform_tolerance: 0.4  # Time (s) to wait for a transform to become available before giving up
+    transform_tolerance: 1.0  # Time (s) to wait for a transform to become available before giving up
 
     z_hit: 0.5      # Mixture weight for actual obstacle hits
     z_rand: 0.5     # Mixture weight for random noise
@@ -40,9 +40,9 @@ amcl:
     z_short: 0.05   # Mixture weight for short readings (dynamic obstacles)
 
     sigma_hit: 0.2              # Standard deviation (m) for the Gaussian model of laser hits
-    lambda_short: 0.1           # Exponential decay parameter for short readings
-    recovery_alpha_slow: 0.001  # Exponential decay rate for the slow average weight filter
-    recovery_alpha_fast: 0.1    # Exponential decay rate for the fast average weight filter
+    # lambda_short: 0.1           # Exponential decay parameter for short readings
+    # recovery_alpha_slow: 0.001  # Exponential decay rate for the slow average weight filter
+    # recovery_alpha_fast: 0.1    # Exponential decay rate for the fast average weight filter
 
 amcl_map_client:
   ros__parameters:
@@ -55,16 +55,16 @@ amcl_rclcpp_node:
 controller_server:
   ros__parameters:
     controller_frequency: 10.0      # The frequency (Hz) at which the controller operates
-    failure_tolerance: 0.5          # Time (s) allowed to fail computing a path before aborting
+    failure_tolerance: 0.3          # Time (s) allowed to fail computing a path before aborting
     use_sim_time: False
-
-    min_x_velocity_threshold: 0.01       # Minimum translational velocity (m/s) to be considered moving
-    min_theta_velocity_threshold: 0.01   # Minimum rotational velocity (rad/s) to be considered moving
+    
+    min_x_velocity_threshold: 0.01        # Minimum translational velocity (m/s) to be considered moving
+    min_theta_velocity_threshold: 0.01    # Minimum rotational velocity (rad/s) to be considered moving
     min_y_velocity_threshold: 1.0         # Minimum lateral velocity (m/s) to be considered moving
 
-    min_stopped_velocity_threshold: 0.01          # Minimum velocity (m/s) to be considered stopped
-    min_stopped_angular_velocity_threshold: 0.01  # Minimum angular velocity (rad/s) to be considered stopped
-    min_stopped_time: 2.0                         # Minimum time (s) to be considered stopped
+    # min_stopped_velocity_threshold: 0.01          # Minimum velocity (m/s) to be considered stopped
+    # min_stopped_angular_velocity_threshold: 0.01  # Minimum angular velocity (rad/s) to be considered stopped
+    # min_stopped_time: 2.0                         # Minimum time (s) to be considered stopped
 
     progress_checker_plugin: "progress_checker"
     goal_checker_plugins: ["general_goal_checker"] 
@@ -77,29 +77,28 @@ controller_server:
     
     general_goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
-      stateful: True    # When the robot is within xy goal tolerance, it will only reach the goal if it meets the yaw tolerance
-      
-      xy_goal_tolerance: 0.25         # Distance (m) from the goal position at which the goal is considered reached 
-      yaw_goal_tolerance: 0.25        # Angle (rad) from the goal orientation at which the goal is considered reached
+      stateful: True            # When the robot is within xy goal tolerance, it will only reach the goal if it meets the yaw tolerance
+      xy_goal_tolerance: 0.3    # Distance (m) from the goal position at which the goal is considered reached 
+      yaw_goal_tolerance: 0.3   # Angle (rad) from the goal orientation at which the goal is considered reached
 
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True  # Publishes information about the evaluated trajectories for debugging
-      publish_cost_grid_pc: True      # Visualizes the critic scoring grid in RViz
-      rune_plan: True                 # Continuously crops old waypoints behind the robot to save CPU
+      # publish_cost_grid_pc: True      # Visualizes the critic scoring grid in RViz
+      # rune_plan: True                 # Continuously crops old waypoints behind the robot to save CPU
 
-      min_vel_x: -0.2       # Minimum translational velocity (m/s)
+      min_vel_x: 0.0        # Minimum translational velocity (m/s)
       min_vel_y: 0.0        # Minimum lateral velocity (m/s)
-      min_vel_theta: 0.0    # Minimum rotational velocity (rad/s)
+      # min_vel_theta: 0.0    # Minimum rotational velocity (rad/s)
       max_vel_x: 1.0        # Maximum translational velocity (m/s)
       max_vel_theta: 1.0    # Maximum rotational velocity (rad/s)
       max_vel_y: 0.0        # Maximum lateral velocity (m/s)
 
-      min_speed_xy: 0.0     # Absolute minimum translational speed (m/s)
+      min_speed_xy: -0.2    # Absolute minimum translational speed (m/s)
       max_speed_xy: 1.0     # Absolute maximum translational speed (m/s)
       min_speed_theta: 0.2  # Absolute minimum rotational speed (rad/s)
-      max_speed_theta: 1.0  # Absolute maximum rotational speed (rad/s)
-      
+      # max_speed_theta: 1.0  # Absolute maximum rotational speed (rad/s)
+
       acc_lim_x: 1.5        # Maximum translational acceleration (m/s^2)
       acc_lim_y: 0.0        # Maximum lateral acceleration (m/s^2)
       acc_lim_theta: 1.5    # Maximum rotational acceleration (rad/s^2)
@@ -110,38 +109,34 @@ controller_server:
       vx_samples: 20        # Number of linear velocity samples to generate in the x direction
       vy_samples: 0         # Number of linear velocity samples to generate in the y direction
       vtheta_samples: 40    # Number of angular velocity samples to generate
-      
-      trans_stopped_velocity: 0.25  # Minimum translational velocity (m/s) to be considered stopped
-      rot_stopped_velocity: 0.25    # Minimum rotational velocity (rad/s) to be considered stopped
 
-      sim_time: 2.0                 # Time (s) to forward simulate each trajectory for
-      linear_granularity: 0.05      # Minimum distance (m) between points in the simulated trajectories
-      angular_granularity: 0.025    # Minimum angle (rad) between points in the simulated trajectories
+      trans_stopped_velocity: 0.25  # Minimum translational velocity (m/s) to be considered stopped
+      # rot_stopped_velocity: 0.25    # Minimum rotational velocity (rad/s) to be considered stopped
+
+      sim_time: 2.0                               # Time (s) to forward simulate each trajectory for
+      linear_granularity: 0.05                    # Minimum distance (m) between points in the simulated trajectories
+      angular_granularity: 0.025                  # Minimum angle (rad) between points in the simulated trajectories
       short_circuit_trajectory_evaluation: True   # Stops evaluating remaining simulated trajectories once the highest possible score is found
   
-      transform_tolerance: 0.4      # Time (s) to wait for a transform to become available before giving up
+      transform_tolerance: 0.2      # Time (s) to wait for a transform to become available before giving up
+      stateful: True                # When the robot is within xy goal tolerance, it will only reach the goal if it meets the yaw tolerance
+      xy_goal_tolerance: 0.3        # Distance (m) from the path alignment
 
-      critics: ["ObstacleFootprintCritic", "GoalAlign", "PathAlign", "PathDist", "GoalDist", "PreferForwardCritic", "Twirling", "RotateToGoal", "Oscillation"]
-      
-      ObstacleFootprintCritic.scale: 1.0  # Scaling factor for the obstacle footprint cost
-      GoalAlign.scale: 18.0               # Scaling factor for the goal alignment cost
-      PathAlign.scale: 32.0               # Scaling factor for the path alignment cost
-      PathDist.scale: 16.0                # Scaling factor for the path distance cost
-      GoalDist.scale: 24.0                # Scaling factor for the goal distance cost
-      PreferForwardCritic.scale: 5.0      # Scaling factor for the prefer forward cost
-      Twirling.scale: 10.0                # Scaling factor for the twirling cost
-      RotateToGoal.scale: 10.0            # Scaling factor for the rotation to goal cost
-      Oscillation.scale: 1.0              # Acts as a binary filter for oscillating trajectories
+      critics: ["RotateToGoal", "Oscillation", "ObstacleFootprintCritic", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      # critics: ["ObstacleFootprintCritic", "GoalAlign", "PathAlign", "PathDist", "GoalDist", "PreferForwardCritic", "Twirling", "RotateToGoal", "Oscillation"]
 
-      PathAlign.forward_point_distance: 0.3   # Distance (m) from the robot's center to the forward point used for calculating path alignment
-      GoalAlign.forward_point_distance: 0.3   # Distance (m) from the robot's center to the forward point used for calculating goal alignment
-      
-      RotateToGoal.slowing_factor: 3.0    # Scaling factor for how much to slow down the robot as it approaches the goal
+      BaseObstacle.scale: 0.02        # Scaling factor for the base obstacle cost
+      GoalAlign.scale: 18.0           # Scaling factor for the goal alignment cost
+      PathAlign.scale: 32.0           # Scaling factor for the path alignment cost
+      PathDist.scale: 32.0            # Scaling factor for the path distance cost
+      GoalDist.scale: 24.0            # Scaling factor for the goal distance cost
+      RotateToGoal.scale: 18.0        # Scaling factor for the rotation to goal cost
+
+      PathAlign.forward_point_distance: 0.1   # Distance (m) from the robot's center to the forward point used for calculating path alignment
+      GoalAlign.forward_point_distance: 0.1   # Distance (m) from the robot's center to the forward point used for calculating goal alignment
+
+      RotateToGoal.slowing_factor: 5.0    # Scaling factor for how much to slow down the robot as it approaches the goal
       RotateToGoal.lookahead_time: -1.0   # Time (s) to look ahead on the trajectory to find the point used for calculating the angle to the goal
-
-      Oscillation.oscillation_reset_dist: 0.05  # Distance (m) the robot must travel to "reset" the oscillation flag
-      Oscillation.oscillation_reset_angle: 0.2  # Angle (rad) the robot must turn to "reset" the oscillation flag
-      Oscillation.oscillation_reset_time: -1.0  # Time (s) before the oscillation flag naturally resets (-1.0 disables time reset)
 
 controller_server_rclcpp_node:
   ros__parameters:
@@ -151,25 +146,25 @@ planner_server:
   ros__parameters:
     expected_planner_frequency: 20.0      # The expected frequency (Hz) at which the planner will produce new plans
     use_sim_time: False
-    
+
     planner_plugins: ["GridBased"]
     
     GridBased:
       plugin: "nav2_smac_planner::SmacPlannerHybrid"
       tolerance: 0.5                      # Tolerance (m) on the goal point
-      allow_unknown: False                # Allow path to travel through unknown space
+      allow_unknown: True                 # Allow path to travel through unknown space
       max_iterations: 1000000             # Maximum iterations before giving up
       max_on_approach_iterations: 1000    # Iterations for the analytic expansion to the goal
-      max_planning_time: 5.0              # Maximum time (s) to find a path before aborting
+      max_planning_time: 2.0              # Maximum time (s) to find a path before aborting
       
-      downsample_costmap: True            # Downsamples the global costmap for faster planning
-      downsampling_factor: 2              # Reduce costmap resolution during planning
+      downsample_costmap: False           # Downsamples the global costmap for faster planning
+      downsampling_factor: 1              # Reduce costmap resolution during planning
  
       minimum_turning_radius: 0.4         # Minimum turning radius (m)
-      reverse_penalty: 2.0                # Multiplier to penalize driving in reverse
-      change_penalty: 0.0                 # Penalty for changing direction (forward <-> reverse)
-      non_straight_penalty: 1.2           # Penalty for turning
-      cost_penalty: 2.0                   # How strictly to avoid high-cost (inflated) obstacle areas
+      reverse_penalty: 3.0                # Multiplier to penalize driving in reverse
+      change_penalty: 0.05                # Penalty for changing direction (forward <-> reverse)
+      non_straight_penalty: 2.0           # Penalty for turning
+      cost_penalty: 1.5                   # How strictly to avoid high-cost (inflated) obstacle areas
       
       angle_quantization: 72              # Number of angular bins (72 = 5-degree increments).
       analytic_expansion_ratio: 3.5       # How often to try calculating the exact Bezier curve to the goal
@@ -184,15 +179,15 @@ global_costmap:
     ros__parameters:
       update_frequency: 1.0     # The frequency (Hz) at which the costmap updates
       publish_frequency: 1.0    # The frequency (Hz) at which the costmap is published, usually for visualization in RViz
-      transform_tolerance: 0.4  # Time (s) to wait for a transform to become available before giving up
+      # transform_tolerance: 0.4  # Time (s) to wait for a transform to become available before giving up
 
       global_frame: map                   # The frame in which the costmap will publish its data
       robot_base_frame: base_footprint    # The frame of the robot's base, used for calculating the costmap's origin
       static_map: True                    # Whether to subscribe to the static map topic
       rolling_window: False               # Whether the costmap should be a rolling window around the robot or a fixed size in the global frame 
-      track_unknown_space: False          # Allows planners to path through unexplored areas if necessary
+      track_unknown_space: True           # Allows planners to path through unexplored areas if necessary
       always_send_full_costmap: True      # Whether to publish the full costmap or just the updated cells at each update cycle
-      use_sim_time: False
+      # use_sim_time: False
 
       footprint: "[[0.48, 0.0], [0.47, 0.05], [0.45, 0.11], [0.40, 0.19], [0.34, 0.23], [0.29, 0.26], [0.22, 0.26], [0.14, 0.26], [0.0, 0.26], [-0.14, 0.26], [-0.22, 0.26], [-0.34, 0.26], [-0.39, 0.23], [-0.45, 0.19], [-0.49, 0.11], [-0.51, 0.05], [-0.52, 0.0], [-0.51, -0.05], [-0.49, -0.11],  [-0.45, -0.19], [-0.39, -0.23], [-0.29, -0.26], [-0.22, -0.26], [-0.14, -0.26], [0.0, -0.27], [0.14, -0.27], [0.22, -0.27], [0.29, -0.26], [0.34, -0.23], [0.40, -0.19], [0.45, -0.11], [0.47, -0.05]]"
 
@@ -205,7 +200,7 @@ global_costmap:
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
-        combination_method: 1         # Method for combining obstacle data: 0 = overwrite, 1 = max, 2 = sum
+        # combination_method: 1         # Method for combining obstacle data: 0 = overwrite, 1 = max, 2 = sum
         observation_sources: scan scan2 scan3
         scan:
           topic: /scan
@@ -213,69 +208,7 @@ global_costmap:
           clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
           marking: True               # Whether to mark obstacles on the costmap when they are detected
           data_type: "LaserScan"
-          raytrace_max_range: 6.0     # Clears free space up to 6m
-          raytrace_min_range: 0.0
-          obstacle_max_range: 5.0     # Marks obstacles up to 5m
-          obstacle_min_range: 0.0
-        scan2:
-          topic: /scan2
-          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
-          clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
-          marking: True               # Whether to mark obstacles on the costmap when they are detected
-          data_type: "LaserScan"
-          raytrace_max_range: 1.5     # Clears free space up to 1.5m
-          raytrace_min_range: 0.0
-          obstacle_max_range: 1.0     # Marks obstacles up to 1m
-          obstacle_min_range: 0.0
-        scan3:
-          topic: /scan3
-          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
-          clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
-          marking: True               # Whether to mark obstacles on the costmap when they are detected
-          data_type: "LaserScan"
-          raytrace_max_range: 1.5     # Clears free space up to 1.5m
-          raytrace_min_range: 0.0
-          obstacle_max_range: 1.0     # Marks obstacles up to 1m
-          obstacle_min_range: 0.0
-
-      inflation_layer:
-        plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 10.0     # Scaling factor for how quickly costs fall off with distance from an obstacle
-        inflation_radius: 2.0         # Maximum distance to inflate costs from an obstacle
-
-local_costmap:
-  local_costmap:
-    ros__parameters:
-      update_frequency: 10.0    # Frequency (Hz) at which to update the local costmap
-      publish_frequency: 2.0    # Frequency (Hz) at which the local costmap is published, usually for visualization in RViz
-      transform_tolerance: 0.4  # Time (s) to wait for a transform to become available before giving up
-
-      global_frame: odom                  # The frame in which the costmap will publish its data
-      robot_base_frame: base_footprint    # The frame of the robot's base, used for calculating the costmap's origin
-      rolling_window: True                # Whether the costmap should be a rolling window around the robot or a fixed size in the global frame 
-      always_send_full_costmap: True      # Whether to publish the full costmap or just the updated cells at each update cycle
-      use_sim_time: False
-
-      width: 3          # Width (m) of the costmap
-      height: 3         # Height (m) of the costmap
-      resolution: 0.05  # Resolution of the costmap in meters per cell
-
-      footprint: "[[0.48, 0.0], [0.47, 0.05], [0.45, 0.11], [0.40, 0.19], [0.34, 0.23], [0.29, 0.26], [0.22, 0.26], [0.14, 0.26], [0.0, 0.26], [-0.14, 0.26], [-0.22, 0.26], [-0.34, 0.26], [-0.39, 0.23], [-0.45, 0.19], [-0.49, 0.11], [-0.51, 0.05], [-0.52, 0.0], [-0.51, -0.05], [-0.49, -0.11],  [-0.45, -0.19], [-0.39, -0.23], [-0.29, -0.26], [-0.22, -0.26], [-0.14, -0.26], [0.0, -0.27], [0.14, -0.27], [0.22, -0.27], [0.29, -0.26], [0.34, -0.23], [0.40, -0.19], [0.45, -0.11], [0.47, -0.05]]"
-      
-      plugins: ["obstacle_layer", "inflation_layer"]
-
-      obstacle_layer:
-        plugin: "nav2_costmap_2d::ObstacleLayer"
-        enabled: True
-        combination_method: 1         # Method for combining multiple observations: 0 = overwrite, 1 = max, 2 = sum
-        observation_sources: scan scan2 scan3
-        scan:
-          topic: /scan
-          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
-          clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
-          marking: True               # Whether to mark obstacles on the costmap when they are detected
-          data_type: "LaserScan"
-          raytrace_max_range: 2.5     # Clears free space up to 2.5m
+          raytrace_max_range: 3.0     # Clears free space up to 3m
           raytrace_min_range: 0.0
           obstacle_max_range: 2.5     # Marks obstacles up to 2.5m
           obstacle_min_range: 0.0
@@ -285,20 +218,87 @@ local_costmap:
           clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
           marking: True               # Whether to mark obstacles on the costmap when they are detected
           data_type: "LaserScan"
-          raytrace_max_range: 1.5     # Clears free space up to 1.5m
-          raytrace_min_range: 0.0
-          obstacle_max_range: 1.0     # Marks obstacles up to 1m
-          obstacle_min_range: 0.0
+          # raytrace_max_range: 1.5     # Clears free space up to 1.5m
+          # raytrace_min_range: 0.0
+          # obstacle_max_range: 1.0     # Marks obstacles up to 1m
+          # obstacle_min_range: 0.0
         scan3:
           topic: /scan3
           max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
           clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
           marking: True               # Whether to mark obstacles on the costmap when they are detected
           data_type: "LaserScan"
-          raytrace_max_range: 1.5     # Clears free space up to 1.5m
-          raytrace_min_range: 0.0
-          obstacle_max_range: 1.0     # Marks obstacles up to 1m
-          obstacle_min_range: 0.0
+          #raytrace_max_range: 1.5     # Clears free space up to 1.5m
+          #raytrace_min_range: 0.0
+          #obstacle_max_range: 1.0     # Marks obstacles up to 1m
+          #obstacle_min_range: 0.0
+
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 10.0     # Scaling factor for how quickly costs fall off with distance from an obstacle
+        inflation_radius: 2.0         # Maximum distance to inflate costs from an obstacle
+
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 10.0
+        inflation_radius: 2.0
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 5.0    # Frequency (Hz) at which to update the local costmap
+      publish_frequency: 2.0    # Frequency (Hz) at which the local costmap is published, usually for visualization in RViz
+      # transform_tolerance: 0.4  # Time (s) to wait for a transform to become available before giving up
+
+      global_frame: odom                  # The frame in which the costmap will publish its data
+      robot_base_frame: base_footprint    # The frame of the robot's base, used for calculating the costmap's origin
+      rolling_window: True                # Whether the costmap should be a rolling window around the robot or a fixed size in the global frame 
+      # always_send_full_costmap: True      # Whether to publish the full costmap or just the updated cells at each update cycle
+      use_sim_time: False
+
+      width: 3          # Width (m) of the costmap
+      height: 3         # Height (m) of the costmap
+      resolution: 0.05  # Resolution of the costmap in meters per cell
+      
+      footprint: "[[0.48, 0.0], [0.47, 0.05], [0.45, 0.11], [0.40, 0.19], [0.34, 0.23], [0.29, 0.26], [0.22, 0.26], [0.14, 0.26], [0.0, 0.26], [-0.14, 0.26], [-0.22, 0.26], [-0.34, 0.26], [-0.39, 0.23], [-0.45, 0.19], [-0.49, 0.11], [-0.51, 0.05], [-0.52, 0.0], [-0.51, -0.05], [-0.49, -0.11],  [-0.45, -0.19], [-0.39, -0.23], [-0.29, -0.26], [-0.22, -0.26], [-0.14, -0.26], [0.0, -0.27], [0.14, -0.27], [0.22, -0.27], [0.29, -0.26], [0.34, -0.23], [0.40, -0.19], [0.45, -0.11], [0.47, -0.05]]"
+
+      plugins: ["obstacle_layer", "inflation_layer"]
+
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        # combination_method: 1         # Method for combining multiple observations: 0 = overwrite, 1 = max, 2 = sum
+        observation_sources: scan scan2 scan3
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
+          clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
+          marking: True               # Whether to mark obstacles on the costmap when they are detected
+          data_type: "LaserScan"
+          # raytrace_max_range: 2.5     # Clears free space up to 2.5m
+          # raytrace_min_range: 0.0
+          # obstacle_max_range: 2.5     # Marks obstacles up to 2.5m
+          # obstacle_min_range: 0.0
+        scan2:
+          topic: /scan2
+          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
+          clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
+          marking: True               # Whether to mark obstacles on the costmap when they are detected
+          data_type: "LaserScan"
+          # raytrace_max_range: 1.5     # Clears free space up to 1.5m
+          # raytrace_min_range: 0.0
+          # obstacle_max_range: 1.0     # Marks obstacles up to 1m
+          # obstacle_min_range: 0.0
+        scan3:
+          topic: /scan3
+          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
+          clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
+          marking: True               # Whether to mark obstacles on the costmap when they are detected
+          data_type: "LaserScan"
+          # raytrace_max_range: 1.5     # Clears free space up to 1.5m
+          # raytrace_min_range: 0.0
+          # obstacle_max_range: 1.0     # Marks obstacles up to 1m
+          # obstacle_min_range: 0.0
 
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
@@ -373,18 +373,18 @@ bt_navigator_rclcpp_node:
 
 behavior_server:
   ros__parameters:
-    global_frame: map                 # The frame in which the navigation stack will perform its computations
-    local_frame: odom                 # The frame in which the behavior server will perform its computations
-    robot_base_frame: base_footprint  # The frame of the robot's base
-    transform_tolerance: 0.4          # Time (s) to wait for a transform to become available before giving up
-    use_sim_time: False
+    # global_frame: map                 # The frame in which the navigation stack will perform its computations
+    # local_frame: odom                 # The frame in which the behavior server will perform its computations
+    # robot_base_frame: base_footprint  # The frame of the robot's base
+    # transform_tolerance: 0.4          # Time (s) to wait for a transform to become available before giving up
+    # use_sim_time: False
 
-    costmap_topic: local_costmap/costmap_raw              # The topic on which the behavior server will receive costmap information
-    footprint_topic: local_costmap/published_footprint    # The topic on which the behavior server will receive the robot's footprint
+    # costmap_topic: local_costmap/costmap_raw              # The topic on which the behavior server will receive costmap information
+    # footprint_topic: local_costmap/published_footprint    # The topic on which the behavior server will receive the robot's footprint
 
-    max_vel_x: 0.25           # Absolute max speed for translation recoveries (m/s)
-    min_vel_x: 0.0            # Absolute min speed for translation recoveries (m/s)
-    max_rotational_vel: 1.0   # Maximum rotational velocity (rad/s)
-    min_rotational_vel: 0.2   # Minimum rotational velocity (rad/s)
-    rotational_acc_lim: 1.5   # Maximum rotational acceleration (rad/s^2)
-    simulate_ahead_time: 2.0  # Time to forward-simulate recovery trajectories to ensure safety
+    # max_vel_x: 0.25           # Absolute max speed for translation recoveries (m/s)
+    # min_vel_x: 0.0            # Absolute min speed for translation recoveries (m/s)
+    max_rotational_vel: 0.3   # Maximum rotational velocity (rad/s)
+    min_rotational_vel: 0.1   # Minimum rotational velocity (rad/s)
+    rotational_acc_lim: 0.3   # Maximum rotational acceleration (rad/s^2)
+    # simulate_ahead_time: 2.0  # Time to forward-simulate recovery trajectories to ensure safety
