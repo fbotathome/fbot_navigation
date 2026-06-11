@@ -40,7 +40,7 @@ amcl:
     z_short: 0.05   # Mixture weight for short readings (dynamic obstacles)
 
     sigma_hit: 0.2              # Standard deviation (m) for the Gaussian model of laser hits
-    # lambda_short: 0.1           # Exponential decay parameter for short readings
+    lambda_short: 0.1           # Exponential decay parameter for short readings
     # recovery_alpha_slow: 0.001  # Exponential decay rate for the slow average weight filter
     # recovery_alpha_fast: 0.1    # Exponential decay rate for the fast average weight filter
 
@@ -91,8 +91,8 @@ controller_server:
       min_vel_y: 0.0        # Minimum lateral velocity (m/s)
       # min_vel_theta: 0.0    # Minimum rotational velocity (rad/s)
       max_vel_x: 1.0        # Maximum translational velocity (m/s)
-      max_vel_theta: 1.0    # Maximum rotational velocity (rad/s)
       max_vel_y: 0.0        # Maximum lateral velocity (m/s)
+      max_vel_theta: 1.0    # Maximum rotational velocity (rad/s)
 
       min_speed_xy: -0.2    # Absolute minimum translational speed (m/s)
       max_speed_xy: 1.0     # Absolute maximum translational speed (m/s)
@@ -113,7 +113,7 @@ controller_server:
       trans_stopped_velocity: 0.25  # Minimum translational velocity (m/s) to be considered stopped
       # rot_stopped_velocity: 0.25    # Minimum rotational velocity (rad/s) to be considered stopped
 
-      sim_time: 2.0                               # Time (s) to forward simulate each trajectory for
+      sim_time: 1.5                               # Time (s) to forward simulate each trajectory for
       linear_granularity: 0.05                    # Minimum distance (m) between points in the simulated trajectories
       angular_granularity: 0.025                  # Minimum angle (rad) between points in the simulated trajectories
       short_circuit_trajectory_evaluation: True   # Stops evaluating remaining simulated trajectories once the highest possible score is found
@@ -237,11 +237,6 @@ global_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 10.0     # Scaling factor for how quickly costs fall off with distance from an obstacle
         inflation_radius: 2.0         # Maximum distance to inflate costs from an obstacle
-
-      inflation_layer:
-        plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 10.0
-        inflation_radius: 2.0
 
 local_costmap:
   local_costmap:
