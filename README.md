@@ -26,7 +26,7 @@
 
 ```
 fbot_navigation/
-├── launch/         # ROS2 launch files for navigation, mapping, localization, controllers
+├── launch/         # nav.launch.py: Nav2 / SLAM / keepout (robot body comes from fbot_bringup)
 ├── maps/           # Map files (.pgm, .yaml) for navigation and SLAM
 ├── param/          # Parameter files for EKF, Nav2, SLAM Toolbox
 ├── rviz/           # RViz configuration files for mapping and navigation
@@ -73,35 +73,28 @@ fbot_navigation/
 
 ## Usage
 
-### Launch Navigation Stack
+Navigation runs **on top of the robot**. The robot body (description, base, lasers, IMU, EKF) is started by `fbot_bringup/robot.launch.py`; this package only provides Nav2 / SLAM (`launch/nav.launch.py`), parameters, maps and RViz configs.
 
 ```bash
-# Launch full navigation stack
-ros2 launch fbot_navigation navigation.launch.py
+# robot + navigation on a map (the usual way)
+ros2 launch fbot_bringup robot.launch.py use_navigation:=true map_file:=lab_2026_2.yaml
 
-# Launch mapping
-ros2 launch fbot_navigation mapping.launch.py
+# robot + navigation while mapping (slam_toolbox)
+ros2 launch fbot_bringup robot.launch.py use_navigation:=true use_slam:=true
 
-# Launch slam
-ros2 launch fbot_navigation slam.launch.py
+# robot + navigation with keepout zones
+ros2 launch fbot_bringup robot.launch.py use_navigation:=true use_keepout_zones:=true
 
-# Launch robot localization
-ros2 launch fbot_navigation robot_localization.launch.py
-
-# Launch navigation with keepout zones
-ros2 launch fbot_navigation navigation_keepout.launch.py
-
-# Launch controllers
-ros2 launch fbot_navigation start_controllers.launch.py
+# navigation only, when the robot is already running
+ros2 launch fbot_navigation nav.launch.py map_file:=lab_2026_2.yaml use_rviz:=true
 ```
+
+`nav.launch.py` arguments: `use_slam`, `use_keepout`, `map_file` (name in `maps/` or absolute path), `params_file`, `slam_params_file`, `use_rviz`, `use_sim_time`. The robot footprint comes from `fbot_description/config/footprint.yaml` (injected by `fbot_bringup/navigation.launch.py`); the EKF config lives in `fbot_description/config/ekf.yaml`.
 
 ### RViz Visualization
 
 ```bash
-# Open RViz for navigation
 ros2 run rviz2 rviz2 -d $(ros2 pkg prefix fbot_navigation)/share/fbot_navigation/rviz/navigation.rviz
-
-# Open RViz for mapping
 ros2 run rviz2 rviz2 -d $(ros2 pkg prefix fbot_navigation)/share/fbot_navigation/rviz/mapping.rviz
 ```
 
@@ -110,23 +103,13 @@ ros2 run rviz2 rviz2 -d $(ros2 pkg prefix fbot_navigation)/share/fbot_navigation
 ## How to Map an Environment
 
 ```bash
-# Launch SLAM
-ros2 launch fbot_navigation mapping.launch.py
-
-# Open RViz for mapping
-ros2 run rviz2 rviz2 -d $(ros2 pkg prefix fbot_navigation)/share/fbot_navigation/rviz/mapping.rviz
-
-# Move the robot around (running teleop of just pushing the robot)
-
-# When the map is ready just save it 
-ros2 run nav2_map_server map_saver_cli -f my_map
-
-# Do not forget to alter the name of the map on the launch file with the name you chose when saving the newly created map.
-
-# Obs.: If the map seems quirky don't worry, sometimes moving it around a little more corrects the drift. If it doesn't help just start over again :)
-
-
+ros2 launch fbot_bringup robot.launch.py use_navigation:=true use_slam:=true use_navigation_rviz:=true
+# drive the robot around (teleop, or push it), then save the map:
+ros2 run nav2_map_server map_saver_cli -f src/fbot_navigation/maps/my_map
+# use it: robot.launch.py use_navigation:=true map_file:=my_map.yaml
 ```
+
+If the map drifts, drive around a bit more (loop closure usually fixes it) or start over.
 
 ---
 
@@ -138,7 +121,7 @@ ros2 run nav2_map_server map_saver_cli -f my_map
 4. Save a copy of the map with a different name
 5. Open the file ```bash nav2_params_keepout.yaml``` 
 6. Edit the filter_mask_server param to match the name of the newly created map with keepout zones
-7. Run the launch as stated previously
+7. Run with `use_keepout_zones:=true` (see Usage)
 
 ---
 
@@ -155,7 +138,7 @@ ros2 run nav2_map_server map_saver_cli -f my_map
 
 ### Param tips and other recommendations
 
-1. When mapping remember to change the launch file to match the name of the generated map
+1. After mapping, pass the new map with `map_file:=<name>.yaml`
 2. For the robot to appear in the map when running nav an initial pose has to be estimated
 3. To change robot's velocity you can alter the following params:
    ```
