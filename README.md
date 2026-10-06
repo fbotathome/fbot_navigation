@@ -130,7 +130,7 @@ If the map drifts, drive around a bit more (loop closure usually fixes it) or st
 
 1. Is the robot on? (base and arm, whatever is needed)
 2. Is the LiDAR sending data?
-3. Is the emergency button not pressed?
+3. Is the emergency button released? (`ros2 topic echo --once /emergency_button` must show `data: true`; `false` = pressed)
 4. Are all the USB devices recognized?
 5. Are all the udev rules for USB devices set?
 6. After all if nothing works try restarting.
