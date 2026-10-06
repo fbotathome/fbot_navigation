@@ -145,9 +145,9 @@ If the map drifts, drive around a bit more (loop closure usually fixes it) or st
    nav2_params.yaml:
       min_vel_x: 0.0
       min_vel_y: 0.0
-      max_vel_x: 1.0
+      max_vel_x: 0.3
       max_vel_y: 0.0
-      max_vel_theta: 1.0
+      max_vel_theta: 0.6
    ```
 
 
