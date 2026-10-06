@@ -1,12 +1,12 @@
 """Navigation only: Nav2 (AMCL + map) or SLAM, optionally with keepout zones.
 
 It NEVER starts the robot description, ros2_control, sensors or the EKF. Start
-those first (fbot_bringup/launch/robot.launch.py), or use
-`ros2 launch fbot_bringup robot.launch.py use_navigation:=true`.
+those first (fbot_bringup/launch/boris.launch.py), or use
+`ros2 launch fbot_bringup boris.launch.py use_navigation:=true`.
 
-  ros2 launch fbot_navigation nav.launch.py map_file:=lab_2026_2.yaml
-  ros2 launch fbot_navigation nav.launch.py use_slam:=true
-  ros2 launch fbot_navigation nav.launch.py use_keepout:=true params_file:=<...>/nav2_params_keepout.yaml
+  ros2 launch fbot_navigation navigation.launch.py map_file:=lab_2026_2.yaml
+  ros2 launch fbot_navigation navigation.launch.py use_slam:=true
+  ros2 launch fbot_navigation navigation.launch.py use_keepout:=true params_file:=<...>/nav2_params_keepout.yaml
 
 Required topics/TF: /scan* (lasers), /odom + odom->base_footprint (EKF), robot_description.
 """

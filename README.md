@@ -26,7 +26,7 @@
 
 ```
 fbot_navigation/
-├── launch/         # nav.launch.py: Nav2 / SLAM / keepout (robot body comes from fbot_bringup)
+├── launch/         # navigation.launch.py: Nav2 / SLAM / keepout (robot body comes from fbot_bringup)
 ├── maps/           # Map files (.pgm, .yaml) for navigation and SLAM
 ├── param/          # Parameter files for EKF, Nav2, SLAM Toolbox
 ├── rviz/           # RViz configuration files for mapping and navigation
@@ -73,23 +73,23 @@ fbot_navigation/
 
 ## Usage
 
-Navigation runs **on top of the robot**. The robot body (description, base, lasers, IMU, EKF) is started by `fbot_bringup/robot.launch.py`; this package only provides Nav2 / SLAM (`launch/nav.launch.py`), parameters, maps and RViz configs.
+Navigation runs **on top of the robot**. The robot body (description, base, lasers, IMU, EKF) is started by `fbot_bringup/boris.launch.py`; this package only provides Nav2 / SLAM (`launch/navigation.launch.py`), parameters, maps and RViz configs.
 
 ```bash
 # robot + navigation on a map (the usual way)
-ros2 launch fbot_bringup robot.launch.py use_navigation:=true map_file:=lab_2026_2.yaml
+ros2 launch fbot_bringup boris.launch.py use_navigation:=true map_file:=lab_2026_2.yaml
 
 # robot + navigation while mapping (slam_toolbox)
-ros2 launch fbot_bringup robot.launch.py use_navigation:=true use_slam:=true
+ros2 launch fbot_bringup boris.launch.py use_navigation:=true use_slam:=true
 
 # robot + navigation with keepout zones
-ros2 launch fbot_bringup robot.launch.py use_navigation:=true use_keepout_zones:=true
+ros2 launch fbot_bringup boris.launch.py use_navigation:=true use_keepout_zones:=true
 
 # navigation only, when the robot is already running
-ros2 launch fbot_navigation nav.launch.py map_file:=lab_2026_2.yaml use_rviz:=true
+ros2 launch fbot_navigation navigation.launch.py map_file:=lab_2026_2.yaml use_rviz:=true
 ```
 
-`nav.launch.py` arguments: `use_slam`, `use_keepout`, `map_file` (name in `maps/` or absolute path), `params_file`, `slam_params_file`, `use_rviz`, `use_sim_time`. The robot footprint comes from `fbot_description/config/footprint.yaml` (injected by `fbot_bringup/navigation.launch.py`); the EKF config lives in `fbot_description/config/ekf.yaml`.
+`navigation.launch.py` arguments: `use_slam`, `use_keepout`, `map_file` (name in `maps/` or absolute path), `params_file`, `slam_params_file`, `use_rviz`, `use_sim_time`. The robot footprint comes from `fbot_description/config/footprint.yaml` (injected by `fbot_bringup/navigation.launch.py`); the EKF config lives in `fbot_description/config/ekf.yaml`.
 
 ### RViz Visualization
 
@@ -103,10 +103,10 @@ ros2 run rviz2 rviz2 -d $(ros2 pkg prefix fbot_navigation)/share/fbot_navigation
 ## How to Map an Environment
 
 ```bash
-ros2 launch fbot_bringup robot.launch.py use_navigation:=true use_slam:=true use_navigation_rviz:=true
+ros2 launch fbot_bringup boris.launch.py use_navigation:=true use_slam:=true use_navigation_rviz:=true
 # drive the robot around (teleop, or push it), then save the map:
 ros2 run nav2_map_server map_saver_cli -f src/fbot_navigation/maps/my_map
-# use it: robot.launch.py use_navigation:=true map_file:=my_map.yaml
+# use it: boris.launch.py use_navigation:=true map_file:=my_map.yaml
 ```
 
 If the map drifts, drive around a bit more (loop closure usually fixes it) or start over.
