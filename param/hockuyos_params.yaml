@@ -54,13 +54,13 @@ amcl_rclcpp_node:
 
 controller_server:
   ros__parameters:
-    controller_frequency: 10.0      # The frequency (Hz) at which the controller operates
+    controller_frequency: 20.0      # MPPI: was 10.0. Must equal 1 / FollowPath.model_dt
     failure_tolerance: 0.3          # Time (s) allowed to fail computing a path before aborting
     use_sim_time: False
     
     min_x_velocity_threshold: 0.01        # Minimum translational velocity (m/s) to be considered moving
     min_theta_velocity_threshold: 0.01    # Minimum rotational velocity (rad/s) to be considered moving
-    min_y_velocity_threshold: 1.0         # Minimum lateral velocity (m/s) to be considered moving
+    min_y_velocity_threshold: 0.5         # Minimum lateral velocity (m/s) to be considered moving (diff drive: unused)
 
     # min_stopped_velocity_threshold: 0.01          # Minimum velocity (m/s) to be considered stopped
     # min_stopped_angular_velocity_threshold: 0.01  # Minimum angular velocity (rad/s) to be considered stopped
@@ -81,62 +81,96 @@ controller_server:
       xy_goal_tolerance: 0.3    # Distance (m) from the goal position at which the goal is considered reached 
       yaw_goal_tolerance: 0.3   # Angle (rad) from the goal orientation at which the goal is considered reached
 
+    # MPPI controller (replaces DWB). Previous DWB config: hockuyos_params_dwb.yaml.bak
+    # Docs: https://docs.nav2.org/configuration/packages/configuring-mppic.html (Humble notes apply)
     FollowPath:
-      plugin: "dwb_core::DWBLocalPlanner"
-      debug_trajectory_details: True  # Publishes information about the evaluated trajectories for debugging
-      # publish_cost_grid_pc: True      # Visualizes the critic scoring grid in RViz
-      # rune_plan: True                 # Continuously crops old waypoints behind the robot to save CPU
+      plugin: "nav2_mppi_controller::MPPIController"
+      time_steps: 56              # Points per sampled trajectory -> horizon = time_steps * model_dt = 2.8 s
+      model_dt: 0.05              # Must match the control period (1 / controller_frequency = 0.05 s at 20 Hz)
+      batch_size: 1000            # Trajectories sampled per cycle (1000 @ 20-50 Hz is the recommended range)
+      iteration_count: 1
+      temperature: 0.3
+      gamma: 0.015
+      motion_model: "DiffDrive"
+      visualize: false            # Set true only for debugging in RViz (costs a lot of CPU)
+      reset_period: 1.0           # Humble only: inactivity time (s) before the optimizer resets
+      regenerate_noises: false
+      retry_attempt_limit: 1
+      prune_distance: 1.7         # Length (m) of the global path considered ahead of the robot
+      transform_tolerance: 0.1
+      enforce_path_inversion: false
 
-      min_vel_x: 0.0        # Minimum translational velocity (m/s)
-      min_vel_y: 0.0        # Minimum lateral velocity (m/s)
-      # min_vel_theta: 0.0    # Minimum rotational velocity (rad/s)
-      max_vel_x: 0.5        # Maximum translational velocity (m/s)
-      max_vel_y: 0.0        # Maximum lateral velocity (m/s)
-      max_vel_theta: 0.5    # Maximum rotational velocity (rad/s)
+      # Velocity limits (same as the previous DWB tuning)
+      vx_max: 0.3                 # Max forward speed (m/s)
+      vx_min: -0.1                # Small reverse allowed to back out of tight spots (PreferForwardCritic discourages it)
+      vy_max: 0.0
+      wz_max: 0.4                 # Max rotational speed (rad/s)
+      vx_std: 0.2                 # Sampling noise; ~2/3 of vx_max keeps exploration reasonable
+      vy_std: 0.0
+      wz_std: 0.4
 
-      min_speed_xy: -0.2    # Absolute minimum translational speed (m/s)
-      max_speed_xy: 0.5     # Absolute maximum translational speed (m/s)
-      min_speed_theta: 0.2  # Absolute minimum rotational speed (rad/s)
-      # max_speed_theta: 1.0  # Absolute maximum rotational speed (rad/s)
+      TrajectoryVisualizer:
+        trajectory_step: 5
+        time_step: 3
 
-      acc_lim_x: 0.2        # Maximum translational acceleration (m/s^2)
-      acc_lim_y: 0.0        # Maximum lateral acceleration (m/s^2)
-      acc_lim_theta: 1.0    # Maximum rotational acceleration (rad/s^2)
-      decel_lim_x: -1.0     # Maximum translational deceleration (m/s^2)
-      decel_lim_y: 0.0      # Maximum lateral deceleration (m/s^2)
-      decel_lim_theta: -0.5 # Maximum rotational deceleration (rad/s^2)
+      critics: ["ConstraintCritic", "ObstaclesCritic", "GoalCritic", "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic", "PathAngleCritic", "PreferForwardCritic"]
 
-      vx_samples: 20        # Number of linear velocity samples to generate in the x direction
-      vy_samples: 0         # Number of linear velocity samples to generate in the y direction
-      vtheta_samples: 40    # Number of angular velocity samples to generate
-
-      trans_stopped_velocity: 0.25  # Minimum translational velocity (m/s) to be considered stopped
-      # rot_stopped_velocity: 0.25    # Minimum rotational velocity (rad/s) to be considered stopped
-
-      sim_time: 1.5                               # Time (s) to forward simulate each trajectory for
-      linear_granularity: 0.05                    # Minimum distance (m) between points in the simulated trajectories
-      angular_granularity: 0.025                  # Minimum angle (rad) between points in the simulated trajectories
-      short_circuit_trajectory_evaluation: True   # Stops evaluating remaining simulated trajectories once the highest possible score is found
-  
-      transform_tolerance: 0.2      # Time (s) to wait for a transform to become available before giving up
-      stateful: True                # When the robot is within xy goal tolerance, it will only reach the goal if it meets the yaw tolerance
-      xy_goal_tolerance: 0.3        # Distance (m) from the path alignment
-
-      critics: ["RotateToGoal", "Oscillation", "ObstacleFootprintCritic", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
-      # critics: ["ObstacleFootprintCritic", "GoalAlign", "PathAlign", "PathDist", "GoalDist", "PreferForwardCritic", "Twirling", "RotateToGoal", "Oscillation"]
-
-      BaseObstacle.scale: 0.02        # Scaling factor for the base obstacle cost
-      GoalAlign.scale: 10.0           # Scaling factor for the goal alignment cost
-      PathAlign.scale: 10.0           # Scaling factor for the path alignment cost
-      PathDist.scale: 10.0            # Scaling factor for the path distance cost
-      GoalDist.scale: 10.0            # Scaling factor for the goal distance cost
-      RotateToGoal.scale: 10.0        # Scaling factor for the rotation to goal cost
-
-      PathAlign.forward_point_distance: 0.1   # Distance (m) from the robot's center to the forward point used for calculating path alignment
-      GoalAlign.forward_point_distance: 0.1   # Distance (m) from the robot's center to the forward point used for calculating goal alignment
-
-      RotateToGoal.slowing_factor: 5.0    # Scaling factor for how much to slow down the robot as it approaches the goal
-      RotateToGoal.lookahead_time: -1.0   # Time (s) to look ahead on the trajectory to find the point used for calculating the angle to the goal
+      ConstraintCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 4.0
+      GoalCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        threshold_to_consider: 1.4    # Distance (m) to goal at which goal critics take over from path critics
+      GoalAngleCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.0
+        threshold_to_consider: 0.5
+      PreferForwardCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        threshold_to_consider: 0.5
+      # ObstaclesCritic is used (not CostCritic) because it exists in every Humble release.
+      # Humble only: inflation_radius / cost_scaling_factor MUST match the local costmap inflation_layer.
+      ObstaclesCritic:
+        enabled: true
+        cost_power: 1
+        repulsion_weight: 1.5
+        critical_weight: 20.0
+        consider_footprint: true      # BORIS is ~1.0 x 0.53 m, a circle approximation is not enough
+        collision_cost: 10000.0
+        collision_margin_distance: 0.1
+        near_goal_distance: 0.5
+        inflation_radius: 2.0         # = local_costmap inflation_layer.inflation_radius
+        cost_scaling_factor: 10.0     # = local_costmap inflation_layer.cost_scaling_factor
+      PathAlignCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 14.0
+        max_path_occupancy_ratio: 0.05
+        trajectory_point_step: 4
+        threshold_to_consider: 0.5
+        offset_from_furthest: 20
+        use_path_orientations: false
+      PathFollowCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        offset_from_furthest: 5
+        threshold_to_consider: 1.4
+      PathAngleCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 2.0
+        offset_from_furthest: 4
+        threshold_to_consider: 0.5
+        max_angle_to_furthest: 1.0
+        forward_preference: true      # Humble name of this option (newer releases use "mode")
+      # TwirlingCritic: only useful for omni robots, left out on purpose
 
 controller_server_rclcpp_node:
   ros__parameters:
@@ -149,26 +183,39 @@ planner_server:
 
     planner_plugins: ["GridBased"]
     
+    # TUNED: SmacPlannerHybrid (Hybrid-A*, DUBIN model) was replaced. Hybrid-A* plans for a car
+    # with a 0.4 m minimum turning radius, so on a differential drive robot it produced wide
+    # arcs/loops instead of "turn in place and go". Smac 2D is the correct planner for diff drive.
+    # Old Hybrid config is kept commented at the end of this block.
     GridBased:
-      plugin: "nav2_smac_planner/SmacPlannerHybrid"
-      tolerance: 0.5                      # Tolerance (m) on the goal point
-      allow_unknown: True                 # Allow path to travel through unknown space
+      plugin: "nav2_smac_planner/SmacPlanner2D"
+      tolerance: 0.25                     # Tolerance (m) on the goal point if the exact goal is blocked
+      allow_unknown: False                # TUNED: was True. Do not plan through unmapped space at home
       max_iterations: 1000000             # Maximum iterations before giving up
-      max_on_approach_iterations: 1000    # Iterations for the analytic expansion to the goal
+      max_on_approach_iterations: 1000    # Iterations to search for a valid goal within tolerance
       max_planning_time: 2.0              # Maximum time (s) to find a path before aborting
-      
+      cost_travel_multiplier: 2.0         # Higher = path stays further from obstacles (center of corridors/doors)
+      use_final_approach_orientation: false
+
       downsample_costmap: False           # Downsamples the global costmap for faster planning
       downsampling_factor: 1              # Reduce costmap resolution during planning
- 
-      minimum_turning_radius: 0.4         # Minimum turning radius (m)
-      reverse_penalty: 3.0                # Multiplier to penalize driving in reverse
-      change_penalty: 0.05                # Penalty for changing direction (forward <-> reverse)
-      non_straight_penalty: 2.0           # Penalty for turning
-      cost_penalty: 1.5                   # How strictly to avoid high-cost (inflated) obstacle areas
-      
-      angle_quantization: 72              # Number of angular bins (72 = 5-degree increments).
-      analytic_expansion_ratio: 3.5       # How often to try calculating the exact Bezier curve to the goal
-      analytic_expansion_max_length: 3.0  # Max distance (m) to attempt the final analytic curve
+
+      smoother:
+        max_iterations: 1000
+        w_smooth: 0.3
+        w_data: 0.2
+        tolerance: 1.0e-10
+
+      # --- previous Hybrid-A* config ---
+      # plugin: "nav2_smac_planner/SmacPlannerHybrid"
+      # minimum_turning_radius: 0.4
+      # reverse_penalty: 3.0
+      # change_penalty: 0.05
+      # non_straight_penalty: 2.0
+      # cost_penalty: 1.5
+      # angle_quantization: 72
+      # analytic_expansion_ratio: 3.5
+      # analytic_expansion_max_length: 3.0
 
 planner_server_rclcpp_node:
   ros__parameters:
