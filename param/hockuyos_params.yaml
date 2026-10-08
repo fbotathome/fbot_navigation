@@ -101,7 +101,7 @@ controller_server:
       enforce_path_inversion: false
 
       # Velocity limits (same as the previous DWB tuning)
-      vx_max: 0.3                 # Max forward speed (m/s)
+      vx_max: 0.2                 # Max forward speed (m/s)
       vx_min: -0.1                # Small reverse allowed to back out of tight spots (PreferForwardCritic discourages it)
       vy_max: 0.0
       wz_max: 0.4                 # Max rotational speed (rad/s)
@@ -139,7 +139,7 @@ controller_server:
       ObstaclesCritic:
         enabled: true
         cost_power: 1
-        repulsion_weight: 1.5
+        repulsion_weight: 0.5
         critical_weight: 20.0
         consider_footprint: true      # BORIS is ~1.0 x 0.53 m, a circle approximation is not enough
         collision_cost: 10000.0
@@ -482,5 +482,5 @@ behavior_server:
     # min_vel_x: 0.0            # Absolute min speed for translation recoveries (m/s)
     max_rotational_vel: 0.3   # Maximum rotational velocity (rad/s)
     min_rotational_vel: 0.1   # Minimum rotational velocity (rad/s)
-    rotational_acc_lim: 0.3   # Maximum rotational acceleration (rad/s^2)
+    rotational_acc_lim: 0.2   # Maximum rotational acceleration (rad/s^2)
     # simulate_ahead_time: 2.0  # Time to forward-simulate recovery trajectories to ensure safety
