@@ -1,5 +1,7 @@
 amcl:
   ros__parameters:
+    use_sim_time: False
+
     alpha1: 0.2   # Expected noise in odometry rotation from rotational movement
     alpha2: 0.2   # Expected noise in odometry rotation from translational movement
     alpha3: 0.2   # Expected noise in odometry translation from translational movement
@@ -8,233 +10,194 @@ amcl:
     robot_model_type: "nav2_amcl::DifferentialMotionModel"
     base_frame_id: "base_footprint"   # The robot's base frame
     global_frame_id: "map"            # The frame tied to the static map
-    odom_frame_id: "odom"             # The frame published by the wheel odometry/EK
+    odom_frame_id: "odom"             # The frame published by the wheel odometry/EKF
     scan_topic: /scan2                # The topic AMCL subscribes to for localization
-    set_initial_pose: False           # Determines whether the operator need to manually set the starting pose
-    use_sim_time: False
+    set_initial_pose: False           # Determines whether the operator needs to manually set the starting pose
 
     laser_model_type: "likelihood_field"
-    laser_max_range: 25.0     # Maximum range (m) of the laser sensor, calculated in meters
-    laser_min_range: -1.0     # Minimum range (m) of the laser sensor, -1 means to use the sensor's reported minimum
-    laser_likelihood_max_dist: 2.0  # Maximum distance (m) to inflate obstacles in the likelihood field map
-    max_beams: 60             # Number of evenly spaced beams used for AMCL updates
-    max_particles: 10000      # Maximum number of particles to use in the filter
-    min_particles: 1000       # Minimum number of particles to use in the filter
-    resample_interval: 1      # Resample particles every Nth laser update
-    save_pose_rate: 0.5       # How often (Hz) to save the estimated pose to disk
+    laser_max_range: 25.0             # Maximum range (m) of the laser sensor
+    laser_min_range: -1.0             # Minimum range (m) of the laser sensor, -1 means to use the sensor's reported minimum
+    laser_likelihood_max_dist: 2.0    # Maximum distance (m) to inflate obstacles in the likelihood field map
+    max_beams: 60                     # Number of evenly spaced beams used for AMCL updates
+    max_particles: 3000               # Maximum number of particles to use in the filter (more particles = more CPU and a slower map->odom update)
+    min_particles: 500                # Minimum number of particles to use in the filter once the pose has converged
+    resample_interval: 1              # Resample particles every Nth laser update
+    save_pose_rate: 0.5               # How often (Hz) to save the estimated pose to disk
 
-    update_min_d: 0.05    # Minimum translational (m) movement required to trigger an update
-    update_min_a: 0.05    # Minimum rotational (rad) movement required to trigger an update
+    update_min_d: 0.1                 # Minimum translational (m) movement required to trigger an update
+    update_min_a: 0.1                 # Minimum rotational (rad) movement required to trigger an update
 
-    beam_skip_distance: 0.5         # Distance (m) to ignore a beam if it's considered faulty
-    beam_skip_error_threshold: 0.9  # Percentage of beams required to trigger a skip
-    beam_skip_threshold: 0.3        # Ratio of valid beams required to not skip
-    do_beamskip: false              # If true, helps ignore dynamic obstacles in AMCL, but can cause instability if the map is outdated
+    beam_skip_distance: 0.5           # Distance (m) to ignore a beam if it's considered faulty
+    beam_skip_error_threshold: 0.9    # Percentage of beams required to trigger a skip
+    beam_skip_threshold: 0.3          # Ratio of valid beams required to not skip
+    do_beamskip: false                # If true, helps ignore dynamic obstacles, but can cause instability if the map is outdated
 
-    tf_broadcast: true        # AMCL will publish the map -> odom transform
-    transform_tolerance: 1.0  # Time (s) to wait for a transform to become available before giving up
+    tf_broadcast: true                # AMCL will publish the map -> odom transform
+    transform_tolerance: 1.0          # Time (s) to wait for a transform to become available before giving up
 
-    z_hit: 0.5      # Mixture weight for actual obstacle hits
-    z_rand: 0.5     # Mixture weight for random noise
-    z_max: 0.05     # Mixture weight for max range readings (free space)
-    z_short: 0.05   # Mixture weight for short readings (dynamic obstacles)
+    z_hit: 0.5                        # Mixture weight for actual obstacle hits
+    z_rand: 0.5                       # Mixture weight for random noise
+    z_max: 0.05                       # Mixture weight for max range readings (free space)
+    z_short: 0.05                     # Mixture weight for short readings (dynamic obstacles)
 
-    sigma_hit: 0.2              # Standard deviation (m) for the Gaussian model of laser hits
-    lambda_short: 0.1           # Exponential decay parameter for short readings
-    # recovery_alpha_slow: 0.001  # Exponential decay rate for the slow average weight filter
-    # recovery_alpha_fast: 0.1    # Exponential decay rate for the fast average weight filter
-
-amcl_map_client:
-  ros__parameters:
-    use_sim_time: False
-
-amcl_rclcpp_node:
-  ros__parameters:
-    use_sim_time: False
+    sigma_hit: 0.2                    # Standard deviation (m) for the Gaussian model of laser hits
+    lambda_short: 0.1                 # Exponential decay parameter for short readings
 
 controller_server:
   ros__parameters:
-    controller_frequency: 20.0      # MPPI: was 10.0. Must equal 1 / FollowPath.model_dt
-    failure_tolerance: 0.3          # Time (s) allowed to fail computing a path before aborting
     use_sim_time: False
-    
-    min_x_velocity_threshold: 0.01        # Minimum translational velocity (m/s) to be considered moving
-    min_theta_velocity_threshold: 0.01    # Minimum rotational velocity (rad/s) to be considered moving
-    min_y_velocity_threshold: 0.5         # Minimum lateral velocity (m/s) to be considered moving (diff drive: unused)
+    controller_frequency: 20.0        # The frequency (Hz) at which the controller operates, must be 1 / FollowPath.model_dt
+    failure_tolerance: 0.3            # Time (s) allowed to fail computing a command before aborting
 
-    # min_stopped_velocity_threshold: 0.01          # Minimum velocity (m/s) to be considered stopped
-    # min_stopped_angular_velocity_threshold: 0.01  # Minimum angular velocity (rad/s) to be considered stopped
-    # min_stopped_time: 2.0                         # Minimum time (s) to be considered stopped
+    min_x_velocity_threshold: 0.01    # Odometry velocities below this (m/s) are treated as 0
+    min_y_velocity_threshold: 0.5     # Odometry lateral velocities below this (m/s) are treated as 0 (unused on differential drive)
+    min_theta_velocity_threshold: 0.01  # Odometry rotational velocities below this (rad/s) are treated as 0
 
     progress_checker_plugin: "progress_checker"
-    goal_checker_plugins: ["general_goal_checker"] 
+    goal_checker_plugins: ["general_goal_checker"]
     controller_plugins: ["FollowPath"]
 
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
-      required_movement_radius: 0.5   # Minimum distance (m) the robot must have moved to be considered making progress
-      movement_time_allowance: 10.0   # Time (s) allowed to fail making progress before triggering recovery behavior
-    
+      required_movement_radius: 0.5   # Minimum distance (m) the robot must move to be considered making progress
+      movement_time_allowance: 10.0   # Time (s) allowed without progress before triggering recovery behaviors
+
     general_goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
-      stateful: True            # When the robot is within xy goal tolerance, it will only reach the goal if it meets the yaw tolerance
-      xy_goal_tolerance: 0.3    # Distance (m) from the goal position at which the goal is considered reached 
-      yaw_goal_tolerance: 0.3   # Angle (rad) from the goal orientation at which the goal is considered reached
+      stateful: True                  # Once within xy goal tolerance, the robot only needs to correct the yaw
+      xy_goal_tolerance: 0.3          # Distance (m) from the goal position at which the goal is considered reached
+      yaw_goal_tolerance: 0.3         # Angle (rad) from the goal orientation at which the goal is considered reached
 
-    # MPPI controller (replaces DWB). Previous DWB config: hockuyos_params_dwb.yaml.bak
-    # Docs: https://docs.nav2.org/configuration/packages/configuring-mppic.html (Humble notes apply)
     FollowPath:
       plugin: "nav2_mppi_controller::MPPIController"
-      time_steps: 56              # Points per sampled trajectory -> horizon = time_steps * model_dt = 2.8 s
-      model_dt: 0.05              # Must match the control period (1 / controller_frequency = 0.05 s at 20 Hz)
-      batch_size: 1000            # Trajectories sampled per cycle (1000 @ 20-50 Hz is the recommended range)
-      iteration_count: 1
-      temperature: 0.3
-      gamma: 0.015
-      motion_model: "DiffDrive"
-      visualize: false            # Set true only for debugging in RViz (costs a lot of CPU)
-      reset_period: 1.0           # Humble only: inactivity time (s) before the optimizer resets
-      regenerate_noises: false
-      retry_attempt_limit: 1
-      prune_distance: 1.7         # Length (m) of the global path considered ahead of the robot
-      transform_tolerance: 0.1
-      enforce_path_inversion: false
+      motion_model: "DiffDrive"       # Kinematic model used to simulate the sampled trajectories
+      time_steps: 56                  # Number of points in each sampled trajectory (horizon = time_steps * model_dt = 2.8 s)
+      model_dt: 0.05                  # Time (s) between trajectory points, must match the controller period
+      batch_size: 1000                # Number of trajectories sampled per cycle, lower it if the controller misses its rate
+      iteration_count: 1              # Optimization iterations per cycle
+      temperature: 0.3                # Selectiveness of the trajectory weighting, lower = follows the best trajectory more strictly
+      gamma: 0.015                    # Trade-off between smooth commands and low cost trajectories
+      reset_period: 1.0               # Time (s) without commands before the optimizer resets (Humble only)
+      regenerate_noises: false        # Whether to regenerate the sampling noise every cycle
+      retry_attempt_limit: 1          # Number of attempts to find a valid trajectory before failing
+      prune_distance: 1.7             # Length (m) of the global path ahead of the robot considered by the controller
+      transform_tolerance: 0.1        # Time (s) to wait for a transform to become available before giving up
+      enforce_path_inversion: false   # Whether to stop at cusps of the global path (only useful for paths with reversing)
+      visualize: false                # Publishes the sampled trajectories to RViz, only use for debugging (heavy on CPU)
 
-      # Velocity limits (same as the previous DWB tuning)
-      vx_max: 0.2                 # Max forward speed (m/s)
-      vx_min: -0.1                # Small reverse allowed to back out of tight spots (PreferForwardCritic discourages it)
-      vy_max: 0.0
-      wz_max: 0.4                 # Max rotational speed (rad/s)
-      vx_std: 0.2                 # Sampling noise; ~2/3 of vx_max keeps exploration reasonable
-      vy_std: 0.0
-      wz_std: 0.4
+      vx_max: 0.3                     # Maximum forward velocity (m/s)
+      vx_min: -0.1                    # Maximum reverse velocity (m/s), lets the robot back out of tight spots
+      vy_max: 0.0                     # Maximum lateral velocity (m/s), 0 for differential drive
+      wz_max: 0.4                     # Maximum rotational velocity (rad/s)
+      vx_std: 0.2                     # Sampling standard deviation for forward velocity
+      vy_std: 0.0                     # Sampling standard deviation for lateral velocity
+      wz_std: 0.4                     # Sampling standard deviation for rotational velocity
 
       TrajectoryVisualizer:
-        trajectory_step: 5
-        time_step: 3
+        trajectory_step: 5            # Draw every Nth sampled trajectory when visualize is true
+        time_step: 3                  # Draw every Nth point of each trajectory when visualize is true
 
       critics: ["ConstraintCritic", "ObstaclesCritic", "GoalCritic", "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic", "PathAngleCritic", "PreferForwardCritic"]
 
-      ConstraintCritic:
+      ConstraintCritic:               # Penalizes trajectories that break the velocity limits
         enabled: true
         cost_power: 1
         cost_weight: 4.0
-      GoalCritic:
+
+      GoalCritic:                     # Pulls the robot towards the goal position when close to it
         enabled: true
         cost_power: 1
         cost_weight: 5.0
-        threshold_to_consider: 1.4    # Distance (m) to goal at which goal critics take over from path critics
-      GoalAngleCritic:
+        threshold_to_consider: 1.4    # Distance (m) to the goal at which this critic starts acting
+
+      GoalAngleCritic:                # Aligns the robot with the goal orientation when close to it
         enabled: true
         cost_power: 1
         cost_weight: 3.0
-        threshold_to_consider: 0.5
-      PreferForwardCritic:
+        threshold_to_consider: 0.5    # Distance (m) to the goal at which this critic starts acting
+
+      PreferForwardCritic:            # Penalizes driving in reverse
         enabled: true
         cost_power: 1
         cost_weight: 5.0
-        threshold_to_consider: 0.5
-      # ObstaclesCritic is used (not CostCritic) because it exists in every Humble release.
-      # Humble only: inflation_radius / cost_scaling_factor MUST match the local costmap inflation_layer.
-      ObstaclesCritic:
+        threshold_to_consider: 0.5    # Distance (m) to the goal at which this critic stops acting
+
+      ObstaclesCritic:                # Keeps trajectories away from obstacles
         enabled: true
         cost_power: 1
-        repulsion_weight: 0.5
-        critical_weight: 20.0
-        consider_footprint: true      # BORIS is ~1.0 x 0.53 m, a circle approximation is not enough
-        collision_cost: 10000.0
-        collision_margin_distance: 0.1
-        near_goal_distance: 0.5
-        inflation_radius: 2.0         # = local_costmap inflation_layer.inflation_radius
-        cost_scaling_factor: 10.0     # = local_costmap inflation_layer.cost_scaling_factor
-      PathAlignCritic:
+        repulsion_weight: 1.5         # How strongly the robot is pushed away from inflated areas
+        critical_weight: 20.0         # How strongly the robot avoids getting close to collision
+        consider_footprint: true      # Uses the full footprint instead of a circle for collision checking
+        collision_cost: 10000.0       # Cost given to trajectories in collision
+        collision_margin_distance: 0.1  # Extra distance (m) from obstacles considered critical
+        near_goal_distance: 0.5       # Distance (m) to the goal at which repulsion is relaxed
+        inflation_radius: 0.75        # Must match the local costmap inflation_radius (Humble only)
+        cost_scaling_factor: 3.0      # Must match the local costmap cost_scaling_factor (Humble only)
+
+      PathAlignCritic:                # Keeps the trajectory on top of the global path
         enabled: true
         cost_power: 1
         cost_weight: 14.0
-        max_path_occupancy_ratio: 0.05
-        trajectory_point_step: 4
-        threshold_to_consider: 0.5
-        offset_from_furthest: 20
-        use_path_orientations: false
-      PathFollowCritic:
+        max_path_occupancy_ratio: 0.05  # Stops acting if this ratio of the path is blocked, so the robot can go around obstacles
+        trajectory_point_step: 4      # Evaluate every Nth trajectory point
+        threshold_to_consider: 0.5    # Distance (m) to the goal at which this critic stops acting
+        offset_from_furthest: 20      # Minimum path points ahead of the robot required for this critic to act
+        use_path_orientations: false  # Whether to also align with the path orientations
+
+      PathFollowCritic:               # Pushes the robot forward along the global path
         enabled: true
         cost_power: 1
         cost_weight: 5.0
-        offset_from_furthest: 5
-        threshold_to_consider: 1.4
-      PathAngleCritic:
+        offset_from_furthest: 5       # Number of path points ahead of the furthest reached point used as target
+        threshold_to_consider: 1.4    # Distance (m) to the goal at which this critic stops acting
+
+      PathAngleCritic:                # Turns the robot towards the path when it is facing away from it
         enabled: true
         cost_power: 1
         cost_weight: 2.0
-        offset_from_furthest: 4
-        threshold_to_consider: 0.5
-        max_angle_to_furthest: 1.0
-        forward_preference: true      # Humble name of this option (newer releases use "mode")
-      # TwirlingCritic: only useful for omni robots, left out on purpose
-
-controller_server_rclcpp_node:
-  ros__parameters:
-    use_sim_time: False
+        offset_from_furthest: 4       # Number of path points ahead used to compute the angle
+        threshold_to_consider: 0.5    # Distance (m) to the goal at which this critic stops acting
+        max_angle_to_furthest: 1.0    # Angle (rad) to the path above which this critic starts acting
+        forward_preference: true      # Prefers turning to face the path instead of reversing towards it
 
 planner_server:
   ros__parameters:
-    expected_planner_frequency: 20.0      # The expected frequency (Hz) at which the planner will produce new plans
     use_sim_time: False
+    expected_planner_frequency: 20.0  # The expected frequency (Hz) at which the planner produces new plans
 
     planner_plugins: ["GridBased"]
-    
-    # TUNED: SmacPlannerHybrid (Hybrid-A*, DUBIN model) was replaced. Hybrid-A* plans for a car
-    # with a 0.4 m minimum turning radius, so on a differential drive robot it produced wide
-    # arcs/loops instead of "turn in place and go". Smac 2D is the correct planner for diff drive.
-    # Old Hybrid config is kept commented at the end of this block.
+
     GridBased:
-      plugin: "nav2_smac_planner/SmacPlanner2D"
-      tolerance: 0.25                     # Tolerance (m) on the goal point if the exact goal is blocked
-      allow_unknown: False                # TUNED: was True. Do not plan through unmapped space at home
-      max_iterations: 1000000             # Maximum iterations before giving up
-      max_on_approach_iterations: 1000    # Iterations to search for a valid goal within tolerance
-      max_planning_time: 2.0              # Maximum time (s) to find a path before aborting
-      cost_travel_multiplier: 2.0         # Higher = path stays further from obstacles (center of corridors/doors)
-      use_final_approach_orientation: false
+      plugin: "nav2_smac_planner/SmacPlanner2D"   # A* planner for robots that can rotate in place
+      tolerance: 0.25                 # Tolerance (m) on the goal point if the exact goal is blocked
+      allow_unknown: False            # Whether the path can travel through unknown space
+      max_iterations: 1000000         # Maximum iterations before giving up
+      max_on_approach_iterations: 1000  # Iterations to search for a valid goal within tolerance
+      max_planning_time: 2.0          # Maximum time (s) to find a path before aborting
+      cost_travel_multiplier: 2.0     # How strongly the path avoids inflated areas, higher = keeps to the center of corridors and doors
+      use_final_approach_orientation: false  # Whether the last path pose uses the approach orientation instead of the goal orientation
 
-      downsample_costmap: False           # Downsamples the global costmap for faster planning
-      downsampling_factor: 1              # Reduce costmap resolution during planning
+      downsample_costmap: False       # Downsamples the global costmap for faster planning
+      downsampling_factor: 1          # Factor used to reduce the costmap resolution when downsampling
 
-      smoother:
-        max_iterations: 1000
-        w_smooth: 0.3
-        w_data: 0.2
-        tolerance: 1.0e-10
-
-      # --- previous Hybrid-A* config ---
-      # plugin: "nav2_smac_planner/SmacPlannerHybrid"
-      # minimum_turning_radius: 0.4
-      # reverse_penalty: 3.0
-      # change_penalty: 0.05
-      # non_straight_penalty: 2.0
-      # cost_penalty: 1.5
-      # angle_quantization: 72
-      # analytic_expansion_ratio: 3.5
-      # analytic_expansion_max_length: 3.0
-
-planner_server_rclcpp_node:
-  ros__parameters:
-    use_sim_time: False
+      smoother:                       # Smooths the raw A* path
+        max_iterations: 1000          # Maximum smoothing iterations
+        w_smooth: 0.3                 # Weight for path smoothness
+        w_data: 0.2                   # Weight for staying close to the original path
+        tolerance: 1.0e-10            # Change below which smoothing stops
 
 global_costmap:
   global_costmap:
     ros__parameters:
-      update_frequency: 1.0     # The frequency (Hz) at which the costmap updates
-      publish_frequency: 1.0    # The frequency (Hz) at which the costmap is published, usually for visualization in RViz
-      # transform_tolerance: 0.4  # Time (s) to wait for a transform to become available before giving up
+      use_sim_time: False
+      update_frequency: 1.0           # The frequency (Hz) at which the costmap updates
+      publish_frequency: 1.0          # The frequency (Hz) at which the costmap is published, usually for visualization in RViz
 
-      global_frame: map                   # The frame in which the costmap will publish its data
-      robot_base_frame: base_footprint    # The frame of the robot's base, used for calculating the costmap's origin
-      static_map: True                    # Whether to subscribe to the static map topic
-      rolling_window: False               # Whether the costmap should be a rolling window around the robot or a fixed size in the global frame 
-      track_unknown_space: True           # Allows planners to path through unexplored areas if necessary
-      always_send_full_costmap: True      # Whether to publish the full costmap or just the updated cells at each update cycle
-      # use_sim_time: False
+      global_frame: map               # The frame in which the costmap is published
+      robot_base_frame: base_footprint  # The frame of the robot's base
+      rolling_window: False           # Whether the costmap moves with the robot or is fixed to the map
+      track_unknown_space: True       # Keeps unknown cells as unknown instead of free
+      always_send_full_costmap: True  # Whether to publish the full costmap or only the updated cells
 
       footprint: "[[0.48, 0.0], [0.47, 0.05], [0.45, 0.11], [0.40, 0.19], [0.34, 0.23], [0.29, 0.26], [0.22, 0.26], [0.14, 0.26], [0.0, 0.26], [-0.14, 0.26], [-0.22, 0.26], [-0.34, 0.26], [-0.39, 0.23], [-0.45, 0.19], [-0.49, 0.11], [-0.51, 0.05], [-0.52, 0.0], [-0.51, -0.05], [-0.49, -0.11],  [-0.45, -0.19], [-0.39, -0.23], [-0.29, -0.26], [-0.22, -0.26], [-0.14, -0.26], [0.0, -0.27], [0.14, -0.27], [0.22, -0.27], [0.29, -0.26], [0.34, -0.23], [0.40, -0.19], [0.45, -0.11], [0.47, -0.05]]"
 
@@ -242,72 +205,49 @@ global_costmap:
 
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
-        map_subscribe_transient_local: True   # Subscribes to the map topic with transient local durability
+        map_subscribe_transient_local: True  # Subscribes to the map topic with transient local durability
 
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
-        # combination_method: 1         # Method for combining obstacle data: 0 = overwrite, 1 = max, 2 = sum
         observation_sources: scan2 scan3
-        # scan:
-        #   topic: /scan
-        #   max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
-        #   clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
-        #   marking: True               # Whether to mark obstacles on the costmap when they are detected
-        #   data_type: "LaserScan"
-        #   raytrace_max_range: 3.0     # Clears free space up to 3m
-        #   raytrace_min_range: 0.0
-        #   obstacle_max_range: 2.5     # Marks obstacles up to 2.5m
-        #   obstacle_min_range: 0.0
         scan2:
           topic: /scan2
-          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
-          clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
-          marking: True               # Whether to mark obstacles on the costmap when they are detected
           data_type: "LaserScan"
-          # raytrace_max_range: 1.5     # Clears free space up to 1.5m
-          # raytrace_min_range: 0.0
-          # obstacle_max_range: 1.0     # Marks obstacles up to 1m
-          # obstacle_min_range: 0.0
+          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
+          clearing: True              # Whether to clear obstacles that are no longer detected
+          marking: True               # Whether to mark detected obstacles
+          raytrace_max_range: 3.0     # Clears free space up to this distance (m)
+          obstacle_max_range: 2.5     # Marks obstacles up to this distance (m)
         scan3:
           topic: /scan3
-          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
-          clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
-          marking: True               # Whether to mark obstacles on the costmap when they are detected
           data_type: "LaserScan"
-          #raytrace_max_range: 1.5     # Clears free space up to 1.5m
-          #raytrace_min_range: 0.0
-          #obstacle_max_range: 1.0     # Marks obstacles up to 1m
-          #obstacle_min_range: 0.0
+          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
+          clearing: True              # Whether to clear obstacles that are no longer detected
+          marking: True               # Whether to mark detected obstacles
+          raytrace_max_range: 3.0     # Clears free space up to this distance (m)
+          obstacle_max_range: 2.5     # Marks obstacles up to this distance (m)
 
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 10.0     # Scaling factor for how quickly costs fall off with distance from an obstacle
-        inflation_radius: 2.0         # Maximum distance to inflate costs from an obstacle
-
-      denoise_layer:
-        plugin: "nav2_costmap_2d::DenoiseLayer"
-        enabled: false
-        minimal_group_size: 2
-        group_connectivity_type: 8
+        cost_scaling_factor: 3.0      # How quickly the cost falls off with distance from an obstacle, lower = wider high-cost area
+        inflation_radius: 0.75        # Maximum distance (m) to inflate costs from an obstacle, above the footprint circumscribed radius (~0.52 m)
 
 local_costmap:
   local_costmap:
     ros__parameters:
-      update_frequency: 5.0    # Frequency (Hz) at which to update the local costmap
-      publish_frequency: 2.0    # Frequency (Hz) at which the local costmap is published, usually for visualization in RViz
-      # transform_tolerance: 0.4  # Time (s) to wait for a transform to become available before giving up
-
-      global_frame: odom                  # The frame in which the costmap will publish its data
-      robot_base_frame: base_footprint    # The frame of the robot's base, used for calculating the costmap's origin
-      rolling_window: True                # Whether the costmap should be a rolling window around the robot or a fixed size in the global frame 
-      # always_send_full_costmap: True      # Whether to publish the full costmap or just the updated cells at each update cycle
       use_sim_time: False
+      update_frequency: 5.0           # The frequency (Hz) at which the costmap updates
+      publish_frequency: 2.0          # The frequency (Hz) at which the costmap is published, usually for visualization in RViz
 
-      width: 3          # Width (m) of the costmap
-      height: 3         # Height (m) of the costmap
-      resolution: 0.05  # Resolution of the costmap in meters per cell
-      
+      global_frame: odom              # The frame in which the costmap is published
+      robot_base_frame: base_footprint  # The frame of the robot's base
+      rolling_window: True            # The costmap moves with the robot
+
+      width: 3                        # Width (m) of the costmap
+      height: 3                       # Height (m) of the costmap
+      resolution: 0.05                # Resolution (m/cell) of the costmap
+
       footprint: "[[0.48, 0.0], [0.47, 0.05], [0.45, 0.11], [0.40, 0.19], [0.34, 0.23], [0.29, 0.26], [0.22, 0.26], [0.14, 0.26], [0.0, 0.26], [-0.14, 0.26], [-0.22, 0.26], [-0.34, 0.26], [-0.39, 0.23], [-0.45, 0.19], [-0.49, 0.11], [-0.51, 0.05], [-0.52, 0.0], [-0.51, -0.05], [-0.49, -0.11],  [-0.45, -0.19], [-0.39, -0.23], [-0.29, -0.26], [-0.22, -0.26], [-0.14, -0.26], [0.0, -0.27], [0.14, -0.27], [0.22, -0.27], [0.29, -0.26], [0.34, -0.23], [0.40, -0.19], [0.45, -0.11], [0.47, -0.05]]"
 
       plugins: ["obstacle_layer", "inflation_layer"]
@@ -315,115 +255,59 @@ local_costmap:
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
-        # combination_method: 1         # Method for combining multiple observations: 0 = overwrite, 1 = max, 2 = sum
         observation_sources: scan2 scan3
-        # scan:
-        #   topic: /scan
-        #   max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
-        #   clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
-        #   marking: True               # Whether to mark obstacles on the costmap when they are detected
-        #   data_type: "LaserScan"
-        #   # raytrace_max_range: 2.5     # Clears free space up to 2.5m
-        #   # raytrace_min_range: 0.0
-        #   # obstacle_max_range: 2.5     # Marks obstacles up to 2.5m
-        #   # obstacle_min_range: 0.0
         scan2:
           topic: /scan2
-          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
-          clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
-          marking: True               # Whether to mark obstacles on the costmap when they are detected
           data_type: "LaserScan"
-          # raytrace_max_range: 1.5     # Clears free space up to 1.5m
-          # raytrace_min_range: 0.0
-          # obstacle_max_range: 1.0     # Marks obstacles up to 1m
-          # obstacle_min_range: 0.0
+          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
+          clearing: True              # Whether to clear obstacles that are no longer detected
+          marking: True               # Whether to mark detected obstacles
+          raytrace_max_range: 3.0     # Clears free space up to this distance (m)
+          obstacle_max_range: 2.5     # Marks obstacles up to this distance (m)
         scan3:
           topic: /scan3
-          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
-          clearing: True              # Whether to clear obstacles from the costmap when they are no longer detected
-          marking: True               # Whether to mark obstacles on the costmap when they are detected
           data_type: "LaserScan"
-          # raytrace_max_range: 1.5     # Clears free space up to 1.5m
-          # raytrace_min_range: 0.0
-          # obstacle_max_range: 1.0     # Marks obstacles up to 1m
-          # obstacle_min_range: 0.0
+          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
+          clearing: True              # Whether to clear obstacles that are no longer detected
+          marking: True               # Whether to mark detected obstacles
+          raytrace_max_range: 3.0     # Clears free space up to this distance (m)
+          obstacle_max_range: 2.5     # Marks obstacles up to this distance (m)
 
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 10.0     # Scaling factor for how quickly costs fall off with distance from an obstacle
-        inflation_radius: 2.0         # Maximum distance to inflate costs from an obstacle
-
-      voxel_layer:
-        plugin: "nav2_costmap_2d::VoxelLayer"
-        enabled: True
-        publish_voxel_map: True
-        origin_z: 0.0
-        z_resolution: 0.05
-        z_voxels: 16
-        max_obstacle_height: 2.0
-        mark_threshold: 0
-        observation_sources: scan2 scan3
-        # scan:
-        #   topic: /scan
-        #   max_obstacle_height: 2.0
-        #   clearing: True
-        #   marking: True
-        #   data_type: "LaserScan"
-        #   raytrace_max_range: 3.0
-        #   raytrace_min_range: 0.0
-        #   obstacle_max_range: 2.5
-        #   obstacle_min_range: 0.0
-        scan2:
-          topic: /scan2
-          max_obstacle_height: 2.0
-          clearing: True
-          marking: True
-          data_type: "LaserScan"
-          raytrace_max_range: 3.0
-          raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
-          obstacle_min_range: 0.0
-        scan3:
-          topic: /scan3
-          max_obstacle_height: 2.0
-          clearing: True
-          marking: True
-          data_type: "LaserScan"
-          raytrace_max_range: 3.0
-          raytrace_min_range: 0.0
-          obstacle_max_range: 2.5
-          obstacle_min_range: 0.0
-      static_layer:
-        map_subscribe_transient_local: True
-      denoise_layer:
-        plugin: "nav2_costmap_2d::DenoiseLayer"
-        enabled: false
-        minimal_group_size: 2
-        group_connectivity_type: 8
-
-  local_costmap_client:
-    ros__parameters:
-      use_sim_time: False
-
-  local_costmap_rclcpp_node:
-    ros__parameters:
-      use_sim_time: False
+        cost_scaling_factor: 3.0      # How quickly the cost falls off with distance from an obstacle, must match ObstaclesCritic
+        inflation_radius: 0.75        # Maximum distance (m) to inflate costs from an obstacle, must match ObstaclesCritic
 
 map_server:
- ros__parameters:
-   use_sim_time: False
-   yaml_filename: "arena_home_OPL_V1.yaml"
+  ros__parameters:
+    use_sim_time: False
+    yaml_filename: "arena_home_OPL_V1.yaml"  # Default map, overridden by the launch file map_file argument
+
+velocity_smoother:
+  ros__parameters:
+    use_sim_time: False
+    smoothing_frequency: 20.0         # The frequency (Hz) at which smoothed commands are published
+    scale_velocities: False           # Whether to scale all axes together to keep the commanded path when limiting one axis
+    feedback: "OPEN_LOOP"             # Uses the last command as current velocity (CLOSED_LOOP uses odometry)
+    max_velocity: [0.3, 0.0, 0.4]     # Maximum velocities [x, y, theta] (m/s, m/s, rad/s), same as the controller
+    min_velocity: [-0.1, 0.0, -0.4]   # Minimum velocities [x, y, theta] (m/s, m/s, rad/s), same as the controller
+    max_accel: [0.3, 0.0, 0.6]        # Maximum accelerations [x, y, theta] (m/s^2, m/s^2, rad/s^2)
+    max_decel: [-0.4, 0.0, -0.6]      # Maximum decelerations [x, y, theta] (m/s^2, m/s^2, rad/s^2)
+    odom_topic: "/odometry/filtered"  # Odometry topic, only used in CLOSED_LOOP
+    odom_duration: 0.1                # Time window (s) to average odometry, only used in CLOSED_LOOP
+    deadband_velocity: [0.0, 0.0, 0.0]  # Velocities below these are sent as 0
+    velocity_timeout: 1.0             # Time (s) without new commands before publishing zero velocity
 
 bt_navigator:
   ros__parameters:
-    global_frame: map                 # The frame in which the navigation stack will perform its computations
-    robot_base_frame: base_footprint  # The frame of the robot's base
-    odom_topic: /odometry/filtered    # The topic on which the navigation stack will receive odometry information
-    enable_groot_monitoring: True     # Whether to publish information for monitoring in Groot
     use_sim_time: False
+    global_frame: map                 # The frame in which the navigation stack performs its computations
+    robot_base_frame: base_footprint  # The frame of the robot's base
+    odom_topic: /odometry/filtered    # The topic on which the navigation stack receives odometry information
+    enable_groot_monitoring: True     # Whether to publish information for monitoring in Groot
 
     bt_loop_duration: 10              # Time (ms) to wait between each loop of the behavior tree
-    default_server_timeout: 20        # Time (s) to wait for an action server to respond before considering it a failure
+    default_server_timeout: 20        # Time (ms) to wait for an action server to respond before considering it a failure
 
     groot_zmq_publisher_port: 1666    # Port for publishing information to Groot over ZeroMQ
     groot_zmq_server_port: 1667       # Port for receiving information from Groot over ZeroMQ
@@ -463,24 +347,8 @@ bt_navigator:
     - nav2_controller_selector_bt_node
     - nav2_goal_checker_selector_bt_node
 
-bt_navigator_rclcpp_node:
-  ros__parameters:
-    use_sim_time: False
-
 behavior_server:
   ros__parameters:
-    # global_frame: map                 # The frame in which the navigation stack will perform its computations
-    # local_frame: odom                 # The frame in which the behavior server will perform its computations
-    # robot_base_frame: base_footprint  # The frame of the robot's base
-    # transform_tolerance: 0.4          # Time (s) to wait for a transform to become available before giving up
-    # use_sim_time: False
-
-    # costmap_topic: local_costmap/costmap_raw              # The topic on which the behavior server will receive costmap information
-    # footprint_topic: local_costmap/published_footprint    # The topic on which the behavior server will receive the robot's footprint
-
-    # max_vel_x: 0.25           # Absolute max speed for translation recoveries (m/s)
-    # min_vel_x: 0.0            # Absolute min speed for translation recoveries (m/s)
-    max_rotational_vel: 0.3   # Maximum rotational velocity (rad/s)
-    min_rotational_vel: 0.1   # Minimum rotational velocity (rad/s)
-    rotational_acc_lim: 0.2   # Maximum rotational acceleration (rad/s^2)
-    # simulate_ahead_time: 2.0  # Time to forward-simulate recovery trajectories to ensure safety
+    max_rotational_vel: 0.3           # Maximum rotational velocity (rad/s) for recovery behaviors
+    min_rotational_vel: 0.1           # Minimum rotational velocity (rad/s) for recovery behaviors
+    rotational_acc_lim: 0.3           # Maximum rotational acceleration (rad/s^2) for recovery behaviors
