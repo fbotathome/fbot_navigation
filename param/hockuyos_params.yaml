@@ -88,7 +88,7 @@ controller_server:
       vx_max: 0.3                     # Maximum forward velocity (m/s)
       vx_min: -0.1                    # Maximum reverse velocity (m/s), lets the robot back out of tight spots
       vy_max: 0.0                     # Maximum lateral velocity (m/s), 0 for differential drive
-      wz_max: 0.4                     # Maximum rotational velocity (rad/s)
+      wz_max: 0.3                     # Maximum rotational velocity (rad/s)
       vx_std: 0.2                     # Sampling standard deviation for forward velocity
       vy_std: 0.0                     # Sampling standard deviation for lateral velocity
       wz_std: 0.4                     # Sampling standard deviation for rotational velocity
@@ -289,10 +289,10 @@ velocity_smoother:
     smoothing_frequency: 20.0         # The frequency (Hz) at which smoothed commands are published
     scale_velocities: False           # Whether to scale all axes together to keep the commanded path when limiting one axis
     feedback: "OPEN_LOOP"             # Uses the last command as current velocity (CLOSED_LOOP uses odometry)
-    max_velocity: [0.3, 0.0, 0.4]     # Maximum velocities [x, y, theta] (m/s, m/s, rad/s), same as the controller
-    min_velocity: [-0.1, 0.0, -0.4]   # Minimum velocities [x, y, theta] (m/s, m/s, rad/s), same as the controller
-    max_accel: [0.3, 0.0, 0.6]        # Maximum accelerations [x, y, theta] (m/s^2, m/s^2, rad/s^2)
-    max_decel: [-0.4, 0.0, -0.6]      # Maximum decelerations [x, y, theta] (m/s^2, m/s^2, rad/s^2)
+    max_velocity: [0.3, 0.0, 0.3]     # Maximum velocities [x, y, theta] (m/s, m/s, rad/s), same as the controller
+    min_velocity: [-0.1, 0.0, -0.3]   # Minimum velocities [x, y, theta] (m/s, m/s, rad/s), same as the controller
+    max_accel: [0.15, 0.0, 0.2]        # Maximum accelerations [x, y, theta] (m/s^2, m/s^2, rad/s^2)
+    max_decel: [-0.2, 0.0, -0.2]      # Maximum decelerations [x, y, theta] (m/s^2, m/s^2, rad/s^2)
     odom_topic: "/odometry/filtered"  # Odometry topic, only used in CLOSED_LOOP
     odom_duration: 0.1                # Time window (s) to average odometry, only used in CLOSED_LOOP
     deadband_velocity: [0.0, 0.0, 0.0]  # Velocities below these are sent as 0
@@ -350,5 +350,5 @@ bt_navigator:
 behavior_server:
   ros__parameters:
     max_rotational_vel: 0.3           # Maximum rotational velocity (rad/s) for recovery behaviors
-    min_rotational_vel: 0.1           # Minimum rotational velocity (rad/s) for recovery behaviors
+    min_rotational_vel: 0.2           # Minimum rotational velocity (rad/s) for recovery behaviors
     rotational_acc_lim: 0.3           # Maximum rotational acceleration (rad/s^2) for recovery behaviors
