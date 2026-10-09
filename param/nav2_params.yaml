@@ -1,6 +1,6 @@
 amcl:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: True
     alpha1: 0.2
     alpha2: 0.2
     alpha3: 0.8 # default is 0.2
@@ -40,19 +40,19 @@ amcl:
 
 amcl_map_client:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: True
 
 amcl_rclcpp_node:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: True
 
 controller_server:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: True
     controller_frequency: 10.0
-    min_x_velocity_threshold: 0.001
+    min_x_velocity_threshold: 0.5
     min_y_velocity_threshold: 0.5
-    min_theta_velocity_threshold: 0.001
+    min_theta_velocity_threshold: 0.5
     failure_tolerance: 0.3
     progress_checker_plugin: "progress_checker"
     goal_checker_plugins: ["general_goal_checker"] 
@@ -66,8 +66,10 @@ controller_server:
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.25
-      yaw_goal_tolerance: 0.3
+      xy_goal_tolerance: 0.40
+      yaw_goal_tolerance: 6.28
+      trans_stopped_velocity: 99.0
+      rot_stopped_velocity: 99.0
 
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
@@ -93,25 +95,26 @@ controller_server:
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.25
-      trans_stopped_velocity: 0.25
+      xy_goal_tolerance: 1.0
+      trans_stopped_velocity: 99.0
+      rot_stopped_velocity: 99.0
       short_circuit_trajectory_evaluation: True
       stateful: True
       critics: ["RotateToGoal", "Oscillation", "ObstacleFootprintCritic", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
       BaseObstacle.scale: 0.02
-      PathAlign.scale: 32.0
+      PathAlign.scale: 5.0
       PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 24.0
+      GoalAlign.scale: 5.0
       GoalAlign.forward_point_distance: 0.1
       PathDist.scale: 32.0
-      GoalDist.scale: 24.0
-      RotateToGoal.scale: 32.0
+      GoalDist.scale: 32.0
+      RotateToGoal.scale: 5.0
       RotateToGoal.slowing_factor: 5.0
       RotateToGoal.lookahead_time: -1.0
       
 controller_server_rclcpp_node:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: True
 
 
 global_costmap:
@@ -179,7 +182,7 @@ local_costmap:
       publish_frequency: 2.0
       global_frame: odom
       robot_base_frame: base_footprint
-      use_sim_time: False
+      use_sim_time: True
       rolling_window: true
       width: 3
       height: 3
@@ -270,11 +273,11 @@ local_costmap:
 
   local_costmap_client:
     ros__parameters:
-      use_sim_time: False
+      use_sim_time: True
 
   local_costmap_rclcpp_node:
     ros__parameters:
-      use_sim_time: False
+      use_sim_time: True
 
 #costmap_filter_info_server:
 #  ros__parameters:
@@ -295,12 +298,12 @@ local_costmap:
 
 map_server:
  ros__parameters:
-   use_sim_time: false
+   use_sim_time: True
    yaml_filename: "arena_home_OPL_V1.yaml"
 
 bt_navigator:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: True
     global_frame: map
     robot_base_frame: base_footprint
     odom_topic: /odometry/filtered
@@ -345,7 +348,7 @@ bt_navigator:
 
 bt_navigator_rclcpp_node:
   ros__parameters:
-    use_sim_time: False
+    use_sim_time: True
 
 behavior_server:
   ros__parameters:
