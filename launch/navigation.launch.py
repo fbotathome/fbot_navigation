@@ -110,7 +110,7 @@ def generate_launch_description():
                               description='Map yaml: file name inside maps/ or an absolute path (ignored with use_slam)'),
         DeclareLaunchArgument('params_file', default_value=os.path.join(share, 'param', 'hockuyos_params.yaml'),
                               description='Nav2 parameters (absolute path)'),
-        DeclareLaunchArgument('slam_params_file', default_value='improve_slam_toolbox.yaml',
+        DeclareLaunchArgument('slam_params_file', default_value='improve_slam_toolbox_v2.yaml',
                               description='slam_toolbox params: file name inside param/ or absolute path'),
         DeclareLaunchArgument('use_rviz', default_value='false', description='Start RViz2 with navigation.rviz'),
         DeclareLaunchArgument('use_sim_time', default_value='false'),
