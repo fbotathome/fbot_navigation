@@ -11,7 +11,7 @@ amcl:
     base_frame_id: "base_footprint"   # The robot's base frame
     global_frame_id: "map"            # The frame tied to the static map
     odom_frame_id: "odom"             # The frame published by the wheel odometry/EKF
-    scan_topic: /scan2                # The topic AMCL subscribes to for localization
+    scan_topic: /scan                 # The topic AMCL subscribes to for localization (Sick LMS)
     set_initial_pose: False           # Determines whether the operator needs to manually set the starting pose
 
     laser_model_type: "likelihood_field"
@@ -210,7 +210,15 @@ global_costmap:
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
-        observation_sources: scan2 scan3
+        observation_sources: scan scan2 scan3
+        scan:
+          topic: /scan                # Sick LMS
+          data_type: "LaserScan"
+          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
+          clearing: True              # Whether to clear obstacles that are no longer detected
+          marking: True               # Whether to mark detected obstacles
+          raytrace_max_range: 3.0     # Clears free space up to this distance (m)
+          obstacle_max_range: 2.5     # Marks obstacles up to this distance (m)
         scan2:
           topic: /scan2
           data_type: "LaserScan"
@@ -255,7 +263,15 @@ local_costmap:
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
-        observation_sources: scan2 scan3
+        observation_sources: scan scan2 scan3
+        scan:
+          topic: /scan                # Sick LMS
+          data_type: "LaserScan"
+          max_obstacle_height: 2.0    # Maximum height (m) of obstacles to consider
+          clearing: True              # Whether to clear obstacles that are no longer detected
+          marking: True               # Whether to mark detected obstacles
+          raytrace_max_range: 3.0     # Clears free space up to this distance (m)
+          obstacle_max_range: 2.5     # Marks obstacles up to this distance (m)
         scan2:
           topic: /scan2
           data_type: "LaserScan"
