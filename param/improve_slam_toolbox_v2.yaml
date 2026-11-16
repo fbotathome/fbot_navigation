@@ -9,6 +9,7 @@ slam_toolbox:
     ceres_trust_strategy: LEVENBERG_MARQUARDT
     ceres_dogleg_type: TRADITIONAL_DOGLEG
     ceres_loss_function: HuberLoss            # robust to outliers (people walking around)
+    ceres_huber_delta: 1.0  # Huber loss parameter for outlier rejection
 
     # ------------------------------------------------------------------
     # Frames / topics / mode
@@ -54,9 +55,9 @@ slam_toolbox:
     link_scan_maximum_distance: 1.5           # was 2.5 (default 1.5)
     use_response_expansion: true
 
-    correlation_search_space_dimension: 0.5
-    correlation_search_space_resolution: 0.02 # was 0.01; ~4x cheaper correlation grid
-    correlation_search_space_smear_deviation: 0.1
+    # correlation_search_space_dimension: 0.5
+    # correlation_search_space_resolution: 0.02 # was 0.01; ~4x cheaper correlation grid
+    # correlation_search_space_smear_deviation: 0.1
 
     coarse_search_angle_offset: 0.174
     coarse_angle_resolution: 0.052
@@ -73,7 +74,7 @@ slam_toolbox:
     # If you see short pauses exactly when a loop closes, set to false and
     # test again to separate the two effects.
     # ------------------------------------------------------------------
-    do_loop_closing: true
+    do_loop_closing: false
     loop_search_maximum_distance: 3.0
     loop_match_minimum_chain_size: 10
     loop_match_maximum_variance_coarse: 3.0
