@@ -49,8 +49,8 @@ controller_server:
     controller_frequency: 20.0        # The frequency (Hz) at which the controller operates, must be 1 / FollowPath.model_dt
     failure_tolerance: 0.3            # Time (s) allowed to fail computing a command before aborting
 
-    min_x_velocity_threshold: 0.01    # Odometry velocities below this (m/s) are treated as 0
-    min_y_velocity_threshold: 0.5     # Odometry lateral velocities below this (m/s) are treated as 0 (unused on differential drive)
+    min_x_velocity_threshold: 0.01      # Odometry velocities below this (m/s) are treated as 0
+    min_y_velocity_threshold: 0.5       # Odometry lateral velocities below this (m/s) are treated as 0 (unused on differential drive)
     min_theta_velocity_threshold: 0.01  # Odometry rotational velocities below this (rad/s) are treated as 0
 
     progress_checker_plugin: "progress_checker"
@@ -125,24 +125,24 @@ controller_server:
       ObstaclesCritic:                # Keeps trajectories away from obstacles
         enabled: true
         cost_power: 1
-        repulsion_weight: 1.5         # How strongly the robot is pushed away from inflated areas
-        critical_weight: 20.0         # How strongly the robot avoids getting close to collision
-        consider_footprint: true      # Uses the full footprint instead of a circle for collision checking
-        collision_cost: 10000.0       # Cost given to trajectories in collision
+        repulsion_weight: 1.5           # How strongly the robot is pushed away from inflated areas
+        critical_weight: 20.0           # How strongly the robot avoids getting close to collision
+        consider_footprint: true        # Uses the full footprint instead of a circle for collision checking
+        collision_cost: 10000.0         # Cost given to trajectories in collision
         collision_margin_distance: 0.1  # Extra distance (m) from obstacles considered critical
-        near_goal_distance: 0.5       # Distance (m) to the goal at which repulsion is relaxed
-        inflation_radius: 0.75        # Must match the local costmap inflation_radius (Humble only)
-        cost_scaling_factor: 3.0      # Must match the local costmap cost_scaling_factor (Humble only)
+        near_goal_distance: 0.5         # Distance (m) to the goal at which repulsion is relaxed
+        inflation_radius: 0.75          # Must match the local costmap inflation_radius (Humble only)
+        cost_scaling_factor: 3.0        # Must match the local costmap cost_scaling_factor (Humble only)
 
-      PathAlignCritic:                # Keeps the trajectory on top of the global path
+      PathAlignCritic:                  # Keeps the trajectory on top of the global path
         enabled: true
         cost_power: 1
         cost_weight: 14.0
         max_path_occupancy_ratio: 0.05  # Stops acting if this ratio of the path is blocked, so the robot can go around obstacles
-        trajectory_point_step: 4      # Evaluate every Nth trajectory point
-        threshold_to_consider: 0.5    # Distance (m) to the goal at which this critic stops acting
-        offset_from_furthest: 20      # Minimum path points ahead of the robot required for this critic to act
-        use_path_orientations: false  # Whether to also align with the path orientations
+        trajectory_point_step: 4        # Evaluate every Nth trajectory point
+        threshold_to_consider: 0.5      # Distance (m) to the goal at which this critic stops acting
+        offset_from_furthest: 20        # Minimum path points ahead of the robot required for this critic to act
+        use_path_orientations: false    # Whether to also align with the path orientations
 
       PathFollowCritic:               # Pushes the robot forward along the global path
         enabled: true
@@ -168,14 +168,14 @@ planner_server:
     planner_plugins: ["GridBased"]
 
     GridBased:
-      plugin: "nav2_smac_planner/SmacPlanner2D"   # A* planner for robots that can rotate in place
-      tolerance: 0.25                 # Tolerance (m) on the goal point if the exact goal is blocked
-      allow_unknown: False            # Whether the path can travel through unknown space
-      max_iterations: 1000000         # Maximum iterations before giving up
-      max_on_approach_iterations: 1000  # Iterations to search for a valid goal within tolerance
-      max_planning_time: 2.0          # Maximum time (s) to find a path before aborting
-      cost_travel_multiplier: 2.0     # How strongly the path avoids inflated areas, higher = keeps to the center of corridors and doors
-      use_final_approach_orientation: false  # Whether the last path pose uses the approach orientation instead of the goal orientation
+      plugin: "nav2_smac_planner/SmacPlanner2D"
+      tolerance: 0.25                         # Tolerance (m) on the goal point if the exact goal is blocked
+      allow_unknown: False                    # Whether the path can travel through unknown space
+      max_iterations: 1000000                 # Maximum iterations before giving up
+      max_on_approach_iterations: 1000        # Iterations to search for a valid goal within tolerance
+      max_planning_time: 2.0                  # Maximum time (s) to find a path before aborting
+      cost_travel_multiplier: 2.0             # How strongly the path avoids inflated areas, higher = keeps to the center of corridors and doors
+      use_final_approach_orientation: false   # Whether the last path pose uses the approach orientation instead of the goal orientation
 
       downsample_costmap: False       # Downsamples the global costmap for faster planning
       downsampling_factor: 1          # Factor used to reduce the costmap resolution when downsampling
@@ -190,13 +190,13 @@ global_costmap:
   global_costmap:
     ros__parameters:
       use_sim_time: False
-      update_frequency: 1.0           # The frequency (Hz) at which the costmap updates
-      publish_frequency: 1.0          # The frequency (Hz) at which the costmap is published, usually for visualization in RViz
+      update_frequency: 1.0             # The frequency (Hz) at which the costmap updates
+      publish_frequency: 1.0            # The frequency (Hz) at which the costmap is published, usually for visualization in RViz
 
-      global_frame: map               # The frame in which the costmap is published
+      global_frame: map                 # The frame in which the costmap is published
       robot_base_frame: base_footprint  # The frame of the robot's base
-      rolling_window: False           # Whether the costmap moves with the robot or is fixed to the map
-      track_unknown_space: True       # Keeps unknown cells as unknown instead of free
+      rolling_window: False             # Whether the costmap moves with the robot or is fixed to the map
+      track_unknown_space: True         # Keeps unknown cells as unknown instead of free
       always_send_full_costmap: True  # Whether to publish the full costmap or only the updated cells
 
       footprint: "[[0.48, 0.0], [0.47, 0.05], [0.45, 0.11], [0.40, 0.19], [0.34, 0.23], [0.29, 0.26], [0.22, 0.26], [0.14, 0.26], [0.0, 0.26], [-0.14, 0.26], [-0.22, 0.26], [-0.34, 0.26], [-0.39, 0.23], [-0.45, 0.19], [-0.49, 0.11], [-0.51, 0.05], [-0.52, 0.0], [-0.51, -0.05], [-0.49, -0.11],  [-0.45, -0.19], [-0.39, -0.23], [-0.29, -0.26], [-0.22, -0.26], [-0.14, -0.26], [0.0, -0.27], [0.14, -0.27], [0.22, -0.27], [0.29, -0.26], [0.34, -0.23], [0.40, -0.19], [0.45, -0.11], [0.47, -0.05]]"
@@ -302,17 +302,17 @@ map_server:
 velocity_smoother:
   ros__parameters:
     use_sim_time: False
-    smoothing_frequency: 20.0         # The frequency (Hz) at which smoothed commands are published
-    scale_velocities: False           # Whether to scale all axes together to keep the commanded path when limiting one axis
-    feedback: "OPEN_LOOP"             # Uses the last command as current velocity (CLOSED_LOOP uses odometry)
-    max_velocity: [0.3, 0.0, 0.3]     # Maximum velocities [x, y, theta] (m/s, m/s, rad/s), same as the controller
-    min_velocity: [-0.1, 0.0, -0.3]   # Minimum velocities [x, y, theta] (m/s, m/s, rad/s), same as the controller
-    max_accel: [0.15, 0.0, 0.2]        # Maximum accelerations [x, y, theta] (m/s^2, m/s^2, rad/s^2)
-    max_decel: [-0.2, 0.0, -0.2]      # Maximum decelerations [x, y, theta] (m/s^2, m/s^2, rad/s^2)
-    odom_topic: "/odometry/filtered"  # Odometry topic, only used in CLOSED_LOOP
-    odom_duration: 0.1                # Time window (s) to average odometry, only used in CLOSED_LOOP
+    smoothing_frequency: 20.0           # The frequency (Hz) at which smoothed commands are published
+    scale_velocities: False             # Whether to scale all axes together to keep the commanded path when limiting one axis
+    feedback: "OPEN_LOOP"               # Uses the last command as current velocity (CLOSED_LOOP uses odometry)
+    max_velocity: [0.3, 0.0, 0.3]       # Maximum velocities [x, y, theta] (m/s, m/s, rad/s), same as the controller
+    min_velocity: [-0.1, 0.0, -0.3]     # Minimum velocities [x, y, theta] (m/s, m/s, rad/s), same as the controller
+    max_accel: [0.15, 0.0, 0.2]         # Maximum accelerations [x, y, theta] (m/s^2, m/s^2, rad/s^2)
+    max_decel: [-0.2, 0.0, -0.2]        # Maximum decelerations [x, y, theta] (m/s^2, m/s^2, rad/s^2)
+    odom_topic: "/odometry/filtered"    # Odometry topic, only used in CLOSED_LOOP
+    odom_duration: 0.1                  # Time window (s) to average odometry, only used in CLOSED_LOOP
     deadband_velocity: [0.0, 0.0, 0.0]  # Velocities below these are sent as 0
-    velocity_timeout: 1.0             # Time (s) without new commands before publishing zero velocity
+    velocity_timeout: 1.0               # Time (s) without new commands before publishing zero velocity
 
 bt_navigator:
   ros__parameters:

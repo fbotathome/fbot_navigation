@@ -113,7 +113,5 @@ def generate_launch_description():
         DeclareLaunchArgument('slam_params_file', default_value='improve_slam_toolbox_v2.yaml',
                               description='slam_toolbox params: file name inside param/ or absolute path'),
         DeclareLaunchArgument('use_rviz', default_value='false', description='Start RViz2 with navigation.rviz'),
-        DeclareLaunchArgument('use_sim_time', default_value='false'),
-        rviz,
-        OpaqueFunction(function=_launch_setup),
+        DeclareLaunchArgument('use_sim_time', default_value='false'), rviz, OpaqueFunction(function=_launch_setup),
     ])

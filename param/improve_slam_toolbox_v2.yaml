@@ -3,89 +3,84 @@ slam_toolbox:
     # ------------------------------------------------------------------
     # Solver (only used when loop closure adds constraints to the graph)
     # ------------------------------------------------------------------
-    solver_plugin: solver_plugins::CeresSolver
-    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
-    ceres_preconditioner: SCHUR_JACOBI        # ignored by direct solvers, kept for reference
-    ceres_trust_strategy: LEVENBERG_MARQUARDT
-    ceres_dogleg_type: TRADITIONAL_DOGLEG
-    ceres_loss_function: HuberLoss            # robust to outliers (people walking around)
-    ceres_huber_delta: 1.0  # Huber loss parameter for outlier rejection
+    solver_plugin: solver_plugins::CeresSolver      # pose-graph optimizer backend
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY     # linear solver Ceres uses at each step
+    ceres_preconditioner: SCHUR_JACOBI              # only for iterative solvers; ignored by direct ones like the above
+    ceres_trust_strategy: LEVENBERG_MARQUARDT       # trust-region method for the nonlinear optimization
+    ceres_dogleg_type: TRADITIONAL_DOGLEG           # dogleg variant; only used if trust strategy is DOGLEG
+    ceres_loss_function: HuberLoss                  # robust loss, down-weights outlier constraints (people walking around)
+    ceres_huber_delta: 1.0                          # NOT read by slam_toolbox (Huber scale is hardcoded); has no effect
 
     # ------------------------------------------------------------------
     # Frames / topics / mode
     # ------------------------------------------------------------------
-    odom_frame: odom
-    map_frame: map
-    base_frame: base_footprint
-    scan_topic: /scan
-    mode: mapping
-    debug_logging: false
-    enable_interactive_mode: false
-    transform_timeout: 0.2
-    tf_buffer_duration: 30.0
-    stack_size_to_use: 40000000               # slam_toolbox default; 20M can crash on big maps
+    odom_frame: odom                                # odometry frame (source of odom->base TF)
+    map_frame: map                                  # global frame; slam publishes map->odom
+    base_frame: base_footprint                      # robot base frame
+    scan_topic: /scan                               # sensor_msgs/LaserScan input topic
+    mode: mapping                                   # mapping = build new map; localization = localize in a saved one
+    debug_logging: false                            # verbose internal logs
+    enable_interactive_mode: false                  # RViz interactive markers to edit the graph by hand (uses more memory)
+    transform_timeout: 0.2                          # max wait (s) for a TF lookup before dropping the scan
+    tf_buffer_duration: 30.0                        # how far back (s) the TF buffer keeps history
+    stack_size_to_use: 40000000                     # thread stack (bytes) for map serialization;
 
     # ------------------------------------------------------------------
-    # Update rates -- the main cause of "pose + scan freeze".
-    # Rebuilding the occupancy grid every 0.2 s and matching ~every scan
-    # starves the node and the CPU; keep these relaxed.
+    # Update rates
     # ------------------------------------------------------------------
-    resolution: 0.05
-    map_update_interval: 1.0                  # was 0.2 (default 5.0); raise to 2.0 if it still stalls
-    throttle_scans: 1
-    minimum_time_interval: 0.2                # was 0.10 (max ~5 Hz of scan matching)
-    minimum_travel_distance: 0.1              # was 0.03 (matched on 3 cm of motion)
-    minimum_travel_heading: 0.1               # was 0.03 (~6 deg)
-    transform_publish_period: 0.02            # map->odom at 50 Hz; cheap, keeps TF smooth
+    resolution: 0.05                                # map cell size (m)
+    map_update_interval: 1.0                        # s between occupancy-grid rebuilds/publishes; was 0.2 (default 5.0); raise to 2.0 if it stalls
+    throttle_scans: 1                               # process 1 of every N incoming scans
+    minimum_time_interval: 0.2                      # min s between processed scans; was 0.10 (max ~5 Hz of scan matching)
+    minimum_travel_distance: 0.1                    # min translation (m) before a new scan is processed; was 0.03
+    minimum_travel_heading: 0.1                     # min rotation (rad, 0.1 ~ 6 deg) before a new scan is processed; was 0.03
+    transform_publish_period: 0.02                  # s between map->odom publishes (50 Hz); cheap, keeps TF smooth
 
     # ------------------------------------------------------------------
     # Laser limits (adjust max range to the Hokuyo model / arena size)
-    # ------------------------------------------------------------------
-    min_laser_range: 0.3
-    max_laser_range: 15.0                     # was 25; long rays cost raytracing time
+    # ----------------------------------------------------------------o--
+    min_laser_range: 0.3                            # rays shorter than this (m) are ignred (robot body, noise)
+    max_laser_range: 15.0                           # rays are clipped at this range (m) for mapping; long rays cost raytracing time
 
     # ------------------------------------------------------------------
     # Scan matching
     # ------------------------------------------------------------------
-    use_scan_matching: true
-    use_scan_barycenter: true
-    scan_buffer_size: 10                      # was 50 (default 10); each scan is linked against this history
-    scan_buffer_maximum_scan_distance: 10.0
-    link_match_minimum_response_fine: 0.2
-    link_scan_maximum_distance: 1.5           # was 2.5 (default 1.5)
-    use_response_expansion: true
+    use_scan_matching: true                         # refine odometry pose by matching scans (false = trust odom only)
+    use_scan_barycenter: true                       # measure scan-to-scan distance using the scan centroid
+    scan_buffer_size: 10                            # recent scans kept in the running buffer; each scan is linked against this history
+    scan_buffer_maximum_scan_distance: 10.0         # max span (m) of the buffer; older scans beyond this are dropped
+    link_match_minimum_response_fine: 0.2           # min fine-match score to add a link between scans
+    link_scan_maximum_distance: 1.5                 # max distance (m) between scans that can be linked; was 2.5 (default 1.5)
+    use_response_expansion: true                    # retry matching with a larger search window if the score is low
 
-    # correlation_search_space_dimension: 0.5
-    # correlation_search_space_resolution: 0.02 # was 0.01; ~4x cheaper correlation grid
-    # correlation_search_space_smear_deviation: 0.1
+    # correlation_search_space_dimension: 0.5         # size (m) of the scan-matching search window
+    # correlation_search_space_resolution: 0.02       # grid step (m) of that window;
+    # correlation_search_space_smear_deviation: 0.1   # blur (m) applied to the correlation grid
 
-    coarse_search_angle_offset: 0.174
-    coarse_angle_resolution: 0.052
-    fine_search_angle_offset: 0.0087
+    coarse_search_angle_offset: 0.174               # +/- angle range (rad, ~10 deg) of the coarse search
+    coarse_angle_resolution: 0.052                  # angle step (rad, ~3 deg) of the coarse search
+    fine_search_angle_offset: 0.0087                # angle range/step (rad, ~0.5 deg) of the fine search
 
-    distance_variance_penalty: 0.3
-    angle_variance_penalty: 0.8
-    minimum_angle_penalty: 0.85
-    minimum_distance_penalty: 0.4
+    distance_variance_penalty: 0.3                  # how much matches far from the odom translation are penalized
+    angle_variance_penalty: 0.8                     # how much matches far from the odom rotation are penalized
+    minimum_angle_penalty: 0.85                     # lower bound on the angle penalty factor
+    minimum_distance_penalty: 0.4                   # lower bound on the distance penalty factor
 
     # ------------------------------------------------------------------
-    # Loop closure. Needed so drift is corrected while driving around the
-    # arena (README tip). Strict thresholds avoid false closures.
-    # If you see short pauses exactly when a loop closes, set to false and
-    # test again to separate the two effects.
+    # Loop closure
     # ------------------------------------------------------------------
-    do_loop_closing: false
-    loop_search_maximum_distance: 3.0
-    loop_match_minimum_chain_size: 10
-    loop_match_maximum_variance_coarse: 3.0
-    loop_match_minimum_response_coarse: 0.4
-    loop_match_minimum_response_fine: 0.6
-    loop_search_space_dimension: 8.0
-    loop_search_space_resolution: 0.05
-    loop_search_space_smear_deviation: 0.03
+    do_loop_closing: false                          # enable loop-closure detection + graph optimization
+    loop_search_maximum_distance: 3.0               # only search for closures within this distance (m) of the current pose
+    loop_match_minimum_chain_size: 10               # min consecutive matching scans needed to attempt a closure
+    loop_match_maximum_variance_coarse: 3.0         # reject coarse matches with covariance above this
+    loop_match_minimum_response_coarse: 0.4         # min coarse-match score to consider a closure
+    loop_match_minimum_response_fine: 0.6           # min fine-match score to accept a closure
+    loop_search_space_dimension: 8.0                # size (m) of the loop-closure search window
+    loop_search_space_resolution: 0.05              # grid step (m) of that window
+    loop_search_space_smear_deviation: 0.03         # blur (m) applied to the loop-closure correlation grid
 
     # ------------------------------------------------------------------
     # Map cleanliness (reject people / transient obstacles)
     # ------------------------------------------------------------------
-    min_pass_through: 4
-    occupancy_threshold: 0.3
+    min_pass_through: 4                             # min beams through a cell before it gets a value
+    occupancy_threshold: 0.3                        # hit/pass ratio above which a cell is marked occupied
