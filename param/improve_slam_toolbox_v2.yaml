@@ -82,5 +82,5 @@ slam_toolbox:
     # ------------------------------------------------------------------
     # Map cleanliness (reject people / transient obstacles)
     # ------------------------------------------------------------------
-    min_pass_through: 4                             # min beams through a cell before it gets a value
+    min_pass_through: 2                             # min beams through a cell before it gets a value
     occupancy_threshold: 0.3                        # hit/pass ratio above which a cell is marked occupied
